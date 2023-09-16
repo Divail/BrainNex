@@ -21,6 +21,14 @@ from darktheme.widget_template_pyqt6 import DarkApplication, DarkPalette
 from components import LeftSideMenu, MyToolbar
 
 
+# from back import display_raw_eeg
+from back import preprocessing_ICA
+from back import power_spectral_density_PSD
+
+# from back import *
+
+
+
 class BrainNex(QMainWindow):
     def __init__(self):
         super().__init__()
