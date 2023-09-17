@@ -5,7 +5,10 @@ from mne import Epochs, pick_types, events_from_annotations
 from mne.channels import make_standard_montage
 from mne.io import concatenate_raws, read_raw_edf
 from mne.datasets import eegbci
-
+from mne.preprocessing import ICA
+from mne import io
+from mne.datasets import sample
+from mne.minimum_norm import read_inverse_operator, compute_source_psd
 
 # print(__doc__)
 
@@ -34,18 +37,6 @@ if __name__ == "__main__":
     picks = pick_types(
         raw.info, meg=False, eeg=True, stim=False, eog=False, exclude="bads"
     )
-
-    # Get the infromation of raw
-    raw.info
-    raw.info.keys()
-
-    #    Get the channel names
-    raw.info["ch_names"]
-
-    # Plot raw data with default parameters
-    raw.plot()
-
-    # Compute the power spectral density of raw data and plot
     spectrum = raw.compute_psd()
     spectrum.plot(average=True, picks="data", exclude="bads")
 
@@ -76,6 +67,8 @@ if __name__ == "__main__":
     ica.plot_components()
     ica.plot_overlay(raw)
 
+
+
 def preprocessing_ICA(raw):
     # Apply ICA to Raw data
     ica = mne.preprocessing.ICA(n_components=20, random_state=97, max_iter=800)
@@ -100,3 +93,4 @@ def power_spectral_density_PSD(raw):
     # Plot a power spectral density of raw data for a specific channel(s)
     midline = ["Fp1"]
     spectrum.plot(picks=midline, exclude="bads")
+
