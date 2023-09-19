@@ -14,15 +14,9 @@ class LeftSideMenu(QFrame):
         self.setWindowTitle("Menu Options")
 
         self.setFixedWidth(300)
-        self.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+        self.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
         self.setStyleSheet(
             """
-            QFrame {
-                border-color=red;
-                border-radius: 10px;
-
-                
-            }
             QPushButton {
                
                 color: black;

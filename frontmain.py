@@ -14,9 +14,16 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QSplitter,
     QDockWidget,
+    QFrame,
 )
 from PyQt6.QtGui import QIcon, QPixmap, QColor, QPalette
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import (
+    Qt,
+    QSize,
+    QPropertyAnimation,
+    QSequentialAnimationGroup,
+    QPoint,
+)
 from darktheme.widget_template_pyqt6 import DarkApplication, DarkPalette
 from components import LeftSideMenu, MyToolbar
 
@@ -28,7 +35,7 @@ class BrainNex(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("BrainNex")
-        self.setGeometry(100, 100, 800, 600)
+        # self.setGeometry(400, 400, 800, 600)
         self.setStyleSheet(
             """
 QMainWindow {
@@ -108,7 +115,7 @@ background-position: center;
         if file_name:
             raw = mne.io.read_raw_edf(file_name, preload=True)
             self.raw_data = raw
-            # remove prev btns
+            # remove prev btns but show toolbar
             self.toolbar.show()
             self.upload_button.deleteLater()
             self.live_button.deleteLater()
