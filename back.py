@@ -68,8 +68,29 @@ if __name__ == "__main__":
     ica.plot_overlay(raw)
 
 
-# def badfdpass(
-##):
-####  events, _ = events_from_annotations(raw, event_id=dict(T1=2, T2=3))
 
-####  # Get the infromation of raw
+def preprocessing_ICA(raw):
+    # Apply ICA to Raw data
+    ica = mne.preprocessing.ICA(n_components=20, random_state=97, max_iter=800)
+    ica.fit(raw)
+    ica.exclude = [15]  # ICA components
+    ica.plot_properties(raw, picks=ica.exclude)                                                          
+
+    # Find the covariance of channels of raw data and plot
+    #noise_cov = mne.compute_raw_covariance(raw, method="shrunk")
+    #fig_noise_cov = mne.viz.plot_cov(noise_cov, raw.info, show_svd=False)
+
+    # Plot ICA components
+    mne.viz.plot_ica_sources(ica, raw)
+    ica.plot_components()
+    ica.plot_overlay(raw)
+    
+def power_spectral_density_PSD(raw):
+    # Compute the power spectral density of raw data and plot
+    spectrum = raw.compute_psd()
+    spectrum.plot(average=True, picks="data", exclude="bads")
+
+    # Plot a power spectral density of raw data for a specific channel(s)
+    midline = ["Fp1"]
+    spectrum.plot(picks=midline, exclude="bads")
+
