@@ -1,6 +1,8 @@
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QLabel, QFrame, QToolBar
-from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtGui import QAction
+
+from PyQt6.QtCore import Qt, QSize
+import qtawesome as qta
 
 
 class LeftSideMenu(QFrame):
@@ -9,29 +11,26 @@ class LeftSideMenu(QFrame):
         self.initUI()
 
     def initUI(self):
-        self.setFixedWidth(200)
+        self.setWindowTitle("Menu Options")
+
+        self.setFixedWidth(300)
+        self.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
         self.setStyleSheet(
             """
-            QFrame {
-                background: grey;
-                border-radius: 20px;
-
-                
-            }
             QPushButton {
+               
                 color: black;
+
             }
             """
         )
 
         layout = QVBoxLayout(self)
 
-        label = QLabel("ICA Options", self)
-        label.setStyleSheet("font-size: 16px; padding: 10px; color: white")
-
         # Buttons for MNE filters and ICA analysis
         btn_bandpass_filter = QPushButton("Apply Bandpass Filter", self)
-        btn_notch_filter = QPushButton("Apply Notch Filter", self)
+
+        btn_notch_filter = QPushButton("Power Spectral Density", self)
         btn_ica_analysis = QPushButton("Run ICA Analysis", self)
         btn_fastica = QPushButton("FastICA", self)
         btn_infomax = QPushButton("Infomax", self)
@@ -47,7 +46,7 @@ class LeftSideMenu(QFrame):
         btn_sobiwhiten = QPushButton("SOBIwhiten", self)
         # Add actions or connections to filter buttons if needed
         btn_bandpass_filter.clicked.connect(self.apply_bandpass_filter)
-        btn_notch_filter.clicked.connect(self.apply_notch_filter)
+        btn_notch_filter.clicked.connect(self.power_spectr_analys)
         btn_ica_analysis.clicked.connect(self.run_ica_analysis)
         btn_fastica.clicked.connect(self.run_fastica)
         btn_infomax.clicked.connect(self.run_infomax)
@@ -61,7 +60,7 @@ class LeftSideMenu(QFrame):
         btn_tdsep.clicked.connect(self.run_tdsep)
         btn_afdica.clicked.connect(self.run_afdica)
         btn_sobiwhiten.clicked.connect(self.run_sobiwhiten)
-        layout.addWidget(label)
+        # layout.addWidget(label)
         layout.addWidget(btn_bandpass_filter)
         layout.addWidget(btn_notch_filter)
         layout.addWidget(btn_ica_analysis)
@@ -77,9 +76,12 @@ class LeftSideMenu(QFrame):
         layout.addWidget(btn_tdsep)
         layout.addWidget(btn_afdica)
         layout.addWidget(btn_sobiwhiten)
-        layout.addStretch()
+        layout.addStretch(20)
 
     # implements stuff
+    def power_spectr_analys(self):
+        self.parent().upload_data()
+
     def run_fastica(self):
         pass
 
@@ -119,9 +121,6 @@ class LeftSideMenu(QFrame):
     def apply_bandpass_filter(self):
         pass
 
-    def apply_notch_filter(self):
-        pass
-
     def run_ica_analysis(self):
         pass
 
@@ -130,28 +129,63 @@ class MyToolbar(QToolBar):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.button_action = QAction("Btn1", self)
-        self.button_action.setStatusTip("This is your button")
-        self.button_action.triggered.connect(self.onMyToolBarButtonClick)
-        self.button_action.setCheckable(True)
-        self.addAction(self.button_action)
+        tool_icon = qta.icon(
+            "fa5s.wrench",
+            active="fa5s.tools",
+            color="#bebb48",
+            color_active="#cbcbcb",
+        )
+        upload_icon = qta.icon(
+            "fa5s.arrow-up",
+            active="fa5s.upload",
+            color="#bebb48",
+            color_active="#cbcbcb",
+        )
+        live_read_data_icon = qta.icon(
+            "fa5s.play",
+            active="fa5s.play-circle",
+            color="#bebb48",
+            color_active="#cbcbcb",
+        )
+        split_screen_icon = qta.icon(
+            "fa5s.columns",
+            active="fa5s.columns",
+            color="#bebb48",
+            color_active="#cbcbcb",
+        )
         # Create the actions
-        upload_action = QAction("Btn2", self)
+        self.tool_action = QAction(tool_icon, "Menu ", self)
+        # self.tool_action.setStatusTip("This is your button")
+        self.tool_action.triggered.connect(self.onMyToolBarButtonClick)
+        self.tool_action.setCheckable(True)
 
-        icon1 = QIcon.fromTheme("SP_MediaPlay")
-        upload_action.setIcon(icon1)
-        read_time_data_action = QAction("Btn3", self)
-        icon2 = QIcon.fromTheme("SP_ArrowUp")
-        read_time_data_action.setIcon(icon2)
+        self.upload_action = QAction(upload_icon, "Upload", self)
+        self.upload_action.triggered.connect(self.uploadMyData)
+        self.read_time_data_action = QAction(live_read_data_icon, "Live Data", self)
+        self.split_screen_action = QAction(split_screen_icon, "Split screen", self)
+        self.addAction(self.tool_action)
 
-        # Add the actions to the toolbar
-        self.addAction(upload_action)
-        self.addAction(read_time_data_action)
         self.addSeparator()
+        self.addAction(self.upload_action)
+        self.addSeparator()
+        self.addAction(self.read_time_data_action)
+        self.addSeparator()
+        self.addAction(self.split_screen_action)
+        # self.split_screen_action.triggered.connect(self.parent().split_screen())
 
-        self.setStyleSheet("color: #7e5302;")
-        self.setFloatable(False)
-        self.setMovable(False)
+        self.setFloatable(True)
+        self.setMovable(True)
+        self.setIconSize(QSize(50, 25))
+        self.setStyleSheet("background-color: transparent")
+        # self.left_side_menu = LeftSideMenu()
 
     def onMyToolBarButtonClick(self):
-        print("Button clicked")
+        if self.tool_action.isChecked():
+            # Show
+            self.parent().left_menu.show()
+        else:
+            # Hide
+            self.parent().left_menu.hide()
+
+    def uploadMyData(self):
+        self.parent().upload_data()
