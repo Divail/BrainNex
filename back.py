@@ -85,6 +85,8 @@ def preprocessing_ICA(raw):
     ica.plot_components()
     ica.plot_overlay(raw)
     
+    return ica
+    
 def power_spectral_density_PSD(raw):
     # Compute the power spectral density of raw data and plot
     spectrum = raw.compute_psd()
@@ -93,4 +95,37 @@ def power_spectral_density_PSD(raw):
     # Plot a power spectral density of raw data for a specific channel(s)
     midline = ["Fp1"]
     spectrum.plot(picks=midline, exclude="bads")
+    
+def topomap_PSD(raw):
+    # Plot topomap (heatmap) of power spectral density of raw data
+    raw.compute_psd().plot_topomap()
 
+def bandpass_filtering(raw):
+    # Apply band-pass filter
+    low = 7.0 # Low frq limit
+    high = 30.0 # High frq limit
+    firDesign = 'firwin'
+    skip_byan = "edge"
+    raw.filter(low, high, fir_design=firDesign, skip_by_annotation=skip_byan)
+    
+
+def low_pass_filtering(raw):
+    low = None # Low frq limit
+    high = 50. # High frq limit
+    firDesign = 'firwin' # firwin - default, additional ones are: firwin2, firwin3
+    raw.filter(low, high, fir_design=firDesign)
+
+def high_pass_filtering(raw):
+    low = 1. # Low frq limit
+    high = None # High frq limit
+    firDesign = 'firwin' # firwin - default, additional ones are: firwin2, firwin3
+    raw.filter(low, high, fir_design=firDesign)
+    
+def plot_each_ICA_component_as_1D_time_series(raw, picks): # picks = [], picks will be a list 
+    ica = preprocessing_ICA(raw)
+    mne.viz.plot_ica_components(ica, picks)
+    #ica.plot_components(picks)
+    
+def plot_electrode(raw):
+    # Plot sensor (electrode) locations on a head
+    raw.plot_sensors(ch_type="eeg")
