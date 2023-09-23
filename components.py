@@ -1,20 +1,27 @@
-from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QLabel, QFrame, QToolBar
+from PyQt6.QtWidgets import (
+    QPushButton,
+    QVBoxLayout,
+    QLabel,
+    QFrame,
+    QToolBar,
+    QDockWidget,
+    QMenuBar,
+)
 from PyQt6.QtGui import QAction
 
 from PyQt6.QtCore import Qt, QSize
 import qtawesome as qta
+from back import power_spectral_density_PSD
 
 
-class LeftSideMenu(QFrame):
+class LeftSideMenu(QMenuBar):
     def __init__(self):
         super().__init__()
-        self.initUI()
 
-    def initUI(self):
         self.setWindowTitle("Menu Options")
 
         self.setFixedWidth(300)
-        self.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
+
         self.setStyleSheet(
             """
             QPushButton {
@@ -79,8 +86,8 @@ class LeftSideMenu(QFrame):
         layout.addStretch(20)
 
     # implements stuff
-    def power_spectr_analys(self):
-        self.parent().upload_data()
+    def power_spectr_analys():
+        power_spectral_density_PSD()
 
     def run_fastica(self):
         pass
@@ -122,7 +129,7 @@ class LeftSideMenu(QFrame):
         pass
 
     def run_ica_analysis(self):
-        pass
+        preprocessing_ICA()
 
 
 class MyToolbar(QToolBar):
@@ -142,14 +149,20 @@ class MyToolbar(QToolBar):
             color_active="#cbcbcb",
         )
         live_read_data_icon = qta.icon(
-            "fa5s.play",
-            active="fa5s.play-circle",
+            "fa5s.brain",
+            active="fa5s.satellite-dish",
             color="#bebb48",
             color_active="#cbcbcb",
         )
         split_screen_icon = qta.icon(
             "fa5s.columns",
             active="fa5s.columns",
+            color="#bebb48",
+            color_active="#cbcbcb",
+        )
+        toolbar_icon = qta.icon(
+            "fa5s.toolbox",
+            active="fa5s.toolbox",
             color="#bebb48",
             color_active="#cbcbcb",
         )
@@ -163,21 +176,22 @@ class MyToolbar(QToolBar):
         self.upload_action.triggered.connect(self.uploadMyData)
         self.read_time_data_action = QAction(live_read_data_icon, "Live Data", self)
         self.split_screen_action = QAction(split_screen_icon, "Split screen", self)
+        self.split_screen_action.triggered.connect(self.onMySplitScreen)
+        self.show_toolbar = QAction(toolbar_icon, "Toolbar", self)
+        self.show_toolbar.triggered.connect(self.showMyToolbar)
         self.addAction(self.tool_action)
-
         self.addSeparator()
         self.addAction(self.upload_action)
         self.addSeparator()
         self.addAction(self.read_time_data_action)
         self.addSeparator()
         self.addAction(self.split_screen_action)
-        # self.split_screen_action.triggered.connect(self.parent().split_screen())
-
+        self.addSeparator()
+        self.addAction(self.show_toolbar)
         self.setFloatable(True)
         self.setMovable(True)
         self.setIconSize(QSize(50, 25))
         self.setStyleSheet("background-color: transparent")
-        # self.left_side_menu = LeftSideMenu()
 
     def onMyToolBarButtonClick(self):
         if self.tool_action.isChecked():
@@ -188,4 +202,22 @@ class MyToolbar(QToolBar):
             self.parent().left_menu.hide()
 
     def uploadMyData(self):
-        self.parent().upload_data()
+        # self.inner_layout = self.parent().layout()
+        self.parent().upload_data(self.parent().inner_layout, hide_btns=False)
+
+    def onMySplitScreen(self):
+        self.parent().split_screen()
+
+    def showMyToolbar(self):
+        if self.parent().dock.isVisible():
+            self.parent().dock.hide()
+        else:
+            self.parent().dock.show()
+
+
+class MyDockMenu(QDockWidget):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setWindowTitle("Options")
+        # Create the dock
+        self.setFixedWidth(350)
