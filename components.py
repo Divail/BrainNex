@@ -129,7 +129,8 @@ class LeftSideMenu(QMenuBar):
         pass
 
     def run_ica_analysis(self):
-        preprocessing_ICA()
+        # preprocessing_ICA()
+        pass
 
 
 class MyToolbar(QToolBar):
