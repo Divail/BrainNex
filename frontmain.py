@@ -30,8 +30,7 @@ from components import LeftSideMenu, MyToolbar, MyDockMenu
 
 
 # from back import display_raw_eeg
-from back import preprocessing_ICA
-from back import power_spectral_density_PSD
+
 
 # from back import *
 

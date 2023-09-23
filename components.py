@@ -11,7 +11,6 @@ from PyQt6.QtGui import QAction
 
 from PyQt6.QtCore import Qt, QSize
 import qtawesome as qta
-from back import power_spectral_density_PSD
 
 
 class LeftSideMenu(QMenuBar):
@@ -87,7 +86,8 @@ class LeftSideMenu(QMenuBar):
 
     # implements stuff
     def power_spectr_analys():
-        power_spectral_density_PSD()
+        # power_spectral_density_PSD()
+        pass
 
     def run_fastica(self):
         pass
