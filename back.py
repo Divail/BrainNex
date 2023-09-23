@@ -2,7 +2,6 @@ import mne
 import matplotlib.pyplot as plt
 from mne.channels import make_standard_montage
 from mne.datasets import eegbci
-
 class EEG():
     ica_bool = False # True if ICA preprocessing has been applied
     
