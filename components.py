@@ -11,7 +11,8 @@ from PyQt6.QtGui import QAction
 
 from PyQt6.QtCore import Qt, QSize
 import qtawesome as qta
-
+from back import *
+from globals import file_path
 
 class LeftSideMenu(QMenuBar):
     def __init__(self):
@@ -50,6 +51,18 @@ class LeftSideMenu(QMenuBar):
         btn_tdsep = QPushButton("TDSEP", self)
         btn_afdica = QPushButton("AFDICA", self)
         btn_sobiwhiten = QPushButton("SOBIwhiten", self)
+        btn_topomap_PSD = QPushButton("Topomap PSD", self)
+        btn_plot_electrode = QPushButton("Plot Electrode", self)
+        btn_preprocessing_ICA = QPushButton("Preprocessing ICA", self)
+        btn_plot_ica_properties = QPushButton("Plot ICA Properties", self)
+        btn_plot_ica_1D = QPushButton("Plot ICA 1D", self)
+        btn_plot_ica_topomap = QPushButton("Plot ICA Topomap", self)
+        btn_power_spectral_density = QPushButton("Power Spectral Density", self)
+        btn_psd_channels = QPushButton("PSD Channels", self)
+        btn_lowpass_filter = QPushButton("Lowpass Filter", self)
+        btn_highpass_filter = QPushButton("Highpass Filter", self)
+        btn_bandpass_filter = QPushButton("Bandpass Filter", self)
+        btn_reset_raw = QPushButton("Reset Raw", self)
         # Add actions or connections to filter buttons if needed
         btn_bandpass_filter.clicked.connect(self.apply_bandpass_filter)
         btn_notch_filter.clicked.connect(self.power_spectr_analys)
@@ -66,6 +79,19 @@ class LeftSideMenu(QMenuBar):
         btn_tdsep.clicked.connect(self.run_tdsep)
         btn_afdica.clicked.connect(self.run_afdica)
         btn_sobiwhiten.clicked.connect(self.run_sobiwhiten)
+        btn_topomap_PSD.clicked.connect(self.topomap_PSD)
+        btn_plot_electrode.clicked.connect(self.plot_electrode)
+        btn_preprocessing_ICA.clicked.connect(self.preprocessing_ICA)
+        btn_plot_ica_properties.clicked.connect(lambda: self.plot_ica_components_properties([18, 11, 17]))
+        btn_plot_ica_1D.clicked.connect(self.plot_ica_components_1D)
+        btn_plot_ica_topomap.clicked.connect(lambda: self.plot_ica_components_topomap([0, 6, 7]))
+        btn_power_spectral_density.clicked.connect(self.power_spectral_density)
+        btn_psd_channels.clicked.connect(lambda: self.power_spectral_density_channels(["AFz", "CPz"]))
+        btn_lowpass_filter.clicked.connect(self.lowpass_filtering)
+        btn_highpass_filter.clicked.connect(self.highpass_filtering)
+        btn_bandpass_filter.clicked.connect(self.bandpass_filtering)
+        btn_reset_raw.clicked.connect(self.reset_raw)
+        
         # layout.addWidget(label)
         layout.addWidget(btn_bandpass_filter)
         layout.addWidget(btn_notch_filter)
@@ -82,6 +108,18 @@ class LeftSideMenu(QMenuBar):
         layout.addWidget(btn_tdsep)
         layout.addWidget(btn_afdica)
         layout.addWidget(btn_sobiwhiten)
+        layout.addWidget(btn_topomap_PSD)
+        layout.addWidget(btn_plot_electrode)
+        layout.addWidget(btn_preprocessing_ICA)
+        layout.addWidget(btn_plot_ica_properties)
+        layout.addWidget(btn_plot_ica_1D)
+        layout.addWidget(btn_plot_ica_topomap)
+        layout.addWidget(btn_power_spectral_density)
+        layout.addWidget(btn_psd_channels)
+        layout.addWidget(btn_lowpass_filter)
+        layout.addWidget(btn_highpass_filter)
+        layout.addWidget(btn_bandpass_filter)
+        layout.addWidget(btn_reset_raw)
         layout.addStretch(20)
 
     # implements stuff
@@ -130,6 +168,42 @@ class LeftSideMenu(QMenuBar):
 
     def run_ica_analysis(self):
         # preprocessing_ICA()
+        pass
+    
+    def topomap_PSD(self):
+        pass
+
+    def plot_electrode(self):
+        pass
+
+    def preprocessing_ICA(self):
+        pass
+
+    def plot_ica_components_properties(self, components=[18, 11, 17]):
+        pass
+
+    def plot_ica_components_1D(self):
+        pass
+
+    def plot_ica_components_topomap(self, components=[0, 6, 7]):
+        pass
+
+    def power_spectral_density(self):
+        pass
+
+    def power_spectral_density_channels(self, picks=["AFz", "CPz"]):
+        pass
+    
+    def lowpass_filtering(self):
+       pass
+
+    def highpass_filtering(self):
+        pass
+
+    def bandpass_filtering(self):
+        pass
+
+    def reset_raw(self):
         pass
 
 

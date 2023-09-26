@@ -28,9 +28,11 @@ from PyQt6.QtCore import (
 from darktheme.widget_template_pyqt6 import DarkApplication, DarkPalette
 from components import LeftSideMenu, MyToolbar, MyDockMenu
 
+from globals import file_path
 
 # from back import display_raw_eeg
-
+# from back import preprocessing_ICA
+# from back import power_spectral_density_PSD
 
 # from back import *
 
@@ -128,6 +130,7 @@ background-position: center;
             self, "Open EEG Data File", "", "EEG Files (*.edf *.fif);;"
         )
         if file_name:
+            file_path = file_name
             raw = mne.io.read_raw_edf(file_name, preload=True)
             global raw_data
             raw_data = raw
