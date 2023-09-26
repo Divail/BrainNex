@@ -2,7 +2,7 @@ import sys
 import mne
 import numpy as np
 import matplotlib.pyplot as plt
-
+import pyqtgraph as pg
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
     QSplitter,
     QDockWidget,
     QFrame,
+    QLayout,
 )
 from PyQt6.QtGui import QIcon, QPixmap, QColor, QPalette
 from PyQt6.QtCore import (
@@ -25,16 +26,16 @@ from PyQt6.QtCore import (
     QPoint,
 )
 from darktheme.widget_template_pyqt6 import DarkApplication, DarkPalette
-from components import LeftSideMenu, MyToolbar
+from components import LeftSideMenu, MyToolbar, MyDockMenu
 
 from globals import file_path
 
 # from back import display_raw_eeg
-#from back import preprocessing_ICA
-#from back import power_spectral_density_PSD
+
 
 # from back import *
 
+global raw_data
 
 
 class BrainNex(QMainWindow):
@@ -49,8 +50,9 @@ class BrainNex(QMainWindow):
             """
 QMainWindow {
 background-image:url(backgr);
-background-repeat:none;
+background-repeat:repeat;
 background-position: center;
+
 }
 """
         )
@@ -66,13 +68,20 @@ background-position: center;
         self.inner_widget.setLayout(self.inner_layout)
         self.main_layout.addWidget(self.inner_widget)
         # initialize LeftMenu class
+
         self.left_menu = LeftSideMenu()
         self.left_menu.hide()
+        # create dick widget
+        self.dock = MyDockMenu(self)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
+        self.dock.hide()
 
         # create first two btn
         button_layout = QHBoxLayout()
         self.upload_button = QPushButton("Upload", self)
-        self.upload_button.clicked.connect(self.upload_data)
+        self.upload_button.clicked.connect(
+            lambda: self.upload_data(self.inner_layout, hide_btns=True)
+        )
         # self.upload_button.clicked.connect(self.upload_button.deleteLater)
         self.upload_button.setStyleSheet(
             """
@@ -114,70 +123,25 @@ background-position: center;
         self.inner_layout.addLayout(button_layout)
 
         self.raw_eeg_plot = None
-        self.raw_data = None
 
-    def upload_data(self):
-        global file_path
-        
+    def upload_data(self, widget, hide_btns=True):
         file_name, _ = QFileDialog.getOpenFileName(
-            self, "Open EEG Data File", "", "EEG Files (*.edf *.fif);;All Files (*)"
+            self, "Open EEG Data File", "", "EEG Files (*.edf *.fif);;"
         )
-
         if file_name:
             file_path = file_name
             raw = mne.io.read_raw_edf(file_name, preload=True)
-            self.raw_data = raw
+            global raw_data
+            raw_data = raw
             # remove prev btns but show toolbar
+            # if hasattr(self, "toolbar"):
+
+        if hide_btns:
             self.toolbar.show()
-            self.upload_button.deleteLater()
-            self.live_button.deleteLater()
-            # craee the new buttons
-            button_layout = QHBoxLayout()
-            self.show_all_channels_button = QPushButton("Show All Channels", self)
-            self.show_all_channels_button.clicked.connect(self.show_all_channels)
-            self.show_all_channels_button.setStyleSheet(
-                """
-    QPushButton {
-        background: #236c2f;
-        margin-top: 2px;
-        border: 1px solid #074a04;
-        padding: 2px;
-        border-radius:75%;
-    }
-    
-    QPushButton:hover {
-        background-color: #868789;
-    }
-    """
-            )  # create new button
-            self.create_watchlist_button = QPushButton("Create Watchlist", self)
-            self.create_watchlist_button.clicked.connect(self.create_watchlist)
-            self.create_watchlist_button.setStyleSheet(
-                """
-    QPushButton {
-        background: #8d7623;
-        margin-top: 2px;
-        border: 1px solid #7e5302;
-        padding: 2px;
-        border-radius:75%;
-    }
-    
-    QPushButton:hover {
-        background-color: #868789;
-    }
-    """
-            )
-            # Add the new buttons to the layout
-            button_layout.addWidget(self.show_all_channels_button)
-            button_layout.addWidget(self.create_watchlist_button)
-            self.inner_layout.addLayout(button_layout)
-            #  QListWidget for channel selection
-            self.channel_list_widget = QListWidget()
-            self.inner_layout.addWidget(
-                self.channel_list_widget
-            )  # Add it to the layout
-            self.channel_list_widget.setVisible(False)
-            self.display_raw_eeg(raw)
+            self.upload_button.hide()
+            self.live_button.hide()
+
+        self.display_raw_eeg(raw, widget)
 
     def read_live_data(self):
         # read real time or whatever
@@ -185,7 +149,7 @@ background-position: center;
 
     def show_all_channels(self):
         # Create the EEG plot
-        self.raw_eeg_plot = mne.viz.plot_raw(self.raw_data, show=False)
+        self.raw_eeg_plot = mne.viz.plot_raw(raw_data, show=False)
 
         # Show the EEG plot in a separate window using mne
         self.raw_eeg_plot.canvas.manager.window.show()
@@ -199,30 +163,68 @@ background-position: center;
     def display_selected_channels(self):
         pass
 
+    def get_raw_data():
+        return raw_data
+
     # this bs display func needd to be rewritten
-    def display_raw_eeg(self, raw):
-        # Clear any previous raw_eeg_plot if it exists
-        if self.raw_eeg_plot:
-            self.inner_layout.removeWidget(self.raw_eeg_plot)
-            self.raw_eeg_plot.get_figure().clear()
-            plt.close(self.raw_eeg_plot.get_figure())
+    def display_raw_eeg(self, raw, layout):
+        plot_widget = pg.PlotWidget()
 
-        # Creae a new plot widget
-        with plt.style.context("dark_background"):
-            self.raw_eeg_plot = raw.plot(show=False, color="white")
+        # Set the plot's background color to white
+        plot_widget.setBackground("default")
 
-        self.inner_layout.addWidget(self.raw_eeg_plot.get_figure().canvas)
+        pens = []
+        for i in range(raw.info["nchan"]):
+            pens.append(pg.mkPen(color=(255, 255, 255), width=1))
 
-        # Get the selected channels
-        selected_channels = self.channel_list_widget.selectedItems()
-        # Set the color of the selected channels to green
-        for channel in selected_channels:
-            self.raw_eeg_plot.get_lines()[channel.row()].set_color("green")
+        # Plot the EEG data for each channel
+        for i in range(raw.info["nchan"]):
+            plot_widget.plot(raw.get_data()[i], pen=pens[i])
 
-        # Set the color of the unselected channels to black
-        for channel in range(len(self.raw_eeg_plot.get_axes())):
-            if channel not in [item.row() for item in selected_channels]:
-                self.raw_eeg_plot.get_axes()[channel].set_facecolor("black")
+        # Add the plot widget to the given widget
+        layout.addWidget(plot_widget)
+
+    # widget.addWidget(self.raw_eeg_plot.get_figure().canvas)
+
+    def split_screen(self):
+        splitter = QSplitter(Qt.Horizontal)
+
+        left_widget = QMainWindow()
+        right_widget = QMainWindow()
+        # left_layout = QVBoxLayout()
+        # right_layout = QVBoxLayout()
+        # Create the central widget for each split window
+        left_central_widget = QWidget()
+        right_central_widget = QWidget()
+
+        left_widget.setCentralWidget(left_central_widget)
+        right_widget.setCentralWidget(right_central_widget)
+        # left_widget.setLayout(left_layout)
+        # right_widget.setLayout(right_layout)
+        splitter.addWidget(left_widget)
+        splitter.addWidget(right_widget)
+        self.toolbar.close()
+        # self.main_layout.addWidget(splitter)
+        self.setCentralWidget(splitter)
+        # left main window
+        # left_widget.inner_layout = left_widget.layout()
+        left_widget.inner_layout = QVBoxLayout()
+        left_central_widget.setLayout(left_widget.inner_layout)
+
+        left_tool = MyToolbar(left_widget)
+        left_widget.upload_data = self.upload_data
+        left_widget.addToolBar(left_tool)
+        left_widget.left_menu = LeftSideMenu()
+
+        # left_widget.setLayout(left_widget.inner_layout)
+        # do right main window
+        right_widget.inner_layout = QVBoxLayout()
+        right_central_widget.setLayout(right_widget.inner_layout)
+
+        right_tool = MyToolbar(left_widget)
+        right_widget.upload_data = self.upload_data
+        right_widget.addToolBar(right_tool)
+        right_widget.left_menu = LeftSideMenu()
 
 
 if __name__ == "__main__":
