@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
     QFrame,
     QLayout,
 )
-from PyQt6.QtGui import QIcon, QPixmap, QColor, QPalette
+from PyQt6.QtGui import QIcon, QPixmap, QColor, QPalette, QAction
 from PyQt6.QtCore import (
     Qt,
     QSize,
@@ -26,7 +26,7 @@ from PyQt6.QtCore import (
     QPoint,
 )
 from darktheme.widget_template_pyqt6 import DarkApplication, DarkPalette
-from components import LeftSideMenu, MyToolbar, MyDockMenu
+from components import LeftSideMenu, MyToolbar, MyDockMenu, MyMenu
 
 from globals import file_path
 
@@ -68,10 +68,15 @@ background-position: center;
         self.inner_widget.setLayout(self.inner_layout)
         self.main_layout.addWidget(self.inner_widget)
         # initialize LeftMenu class
+        self.mymenu = MyMenu(self)
+        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.mymenu)
+        self.mymenu.hide()
+        # self.setMenuBar(self.mymenu)
 
-        self.left_menu = LeftSideMenu()
-        self.left_menu.hide()
-        # create dick widget
+        # self.left_menu = LeftSideMenu()
+        # self.left_menu.hide()
+
+        # create dock widget
         self.dock = MyDockMenu(self)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
         self.dock.hide()
