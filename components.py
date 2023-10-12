@@ -9,12 +9,15 @@ from PyQt6.QtWidgets import (
     QMenuBar,
     QSizePolicy,
     QWidget,
+    QLineEdit,
+    QComboBox,
+    QGridLayout,
+    QSpinBox,
 )
 from PyQt6.QtGui import QAction
 
 from PyQt6.QtCore import Qt, QSize, QPoint
 import qtawesome as qta
-from back import *
 from globals import file_path
 
 
@@ -270,15 +273,17 @@ class MyMenu(QToolBar):
         # btn_plot_electrode.clicked.connect(self.plot_electrode)
         btn_preprocessing_ICA.triggered.connect(self.preprocessing_ICA)
         btn_plot_ica_properties.triggered.connect(
-            lambda: self.plot_ica_components_properties([18, 11, 17])
+            lambda: self.parent().my_eeg.plot_ica_components_properties(9)
         )
-        btn_plot_ica_1D.triggered.connect(self.plot_ica_components_1D)
+        btn_plot_ica_1D.triggered.connect(
+            lambda: self.parent().my_eeg.plot_ica_components_1D()
+        )
         btn_plot_ica_topomap.triggered.connect(
-            lambda: self.plot_ica_components_topomap([0, 6, 7])
+            lambda: self.parent().my_eeg.plot_ica_components_topomap([0, 6, 7])
         )
         btn_power_spectral_density.triggered.connect(self.power_spectral_density)
         btn_psd_channels.triggered.connect(
-            lambda: self.power_spectral_density_channels(["AFz", "CPz"])
+            lambda: self.parent().my_eeg.power_spectral_density_channels(["AFz", "CPz"])
         )
         btn_lowpass_filter.triggered.connect(self.lowpass_filtering)
         btn_highpass_filter.triggered.connect(self.highpass_filtering)
@@ -306,42 +311,6 @@ class MyMenu(QToolBar):
         # power_spectral_density_PSD()
         pass
 
-    def run_fastica(self):
-        pass
-
-    def run_infomax(self):
-        pass
-
-    def run_extended_infomax(self):
-        pass
-
-    def run_amica(self):
-        pass
-
-    def run_picard(self):
-        pass
-
-    def run_jade(self):
-        pass
-
-    def run_sobi(self):
-        pass
-
-    def run_corrca(self):
-        pass
-
-    def run_combi(self):
-        pass
-
-    def run_tdsep(self):
-        pass
-
-    def run_afdica(self):
-        pass
-
-    def run_sobiwhiten(self):
-        pass
-
     def apply_bandpass_filter(self):
         pass
 
@@ -356,15 +325,11 @@ class MyMenu(QToolBar):
         pass
 
     def preprocessing_ICA(self):
-        pass
+        self.parent().dock.show()
 
-    def plot_ica_components_properties(self, components=[18, 11, 17]):
-        pass
+    # self.parent().my_raw.preprocessing_ICA()
 
     def plot_ica_components_1D(self):
-        pass
-
-    def plot_ica_components_topomap(self, components=[0, 6, 7]):
         pass
 
     def power_spectral_density(self):
@@ -480,3 +445,63 @@ class MyDockMenu(QDockWidget):
         self.setWindowTitle("Options")
         # Create the dock
         self.setFixedWidth(350)
+
+        central_widget = QWidget()
+        self.setWidget(central_widget)
+        self.n_components_spinbox = QSpinBox()
+        self.n_components_spinbox.setValue(20)
+
+        self.random_state_spinbox = QSpinBox()
+        self.random_state_spinbox.setValue(97)
+
+        self.max_iter_spinbox = QSpinBox()
+        self.max_iter_spinbox.setValue(800)
+        layout = QVBoxLayout()
+        # layout.setContentsMargins(20, 10, 20, 10)
+        central_widget.setLayout(layout)
+
+        self.setStyleSheet(
+            """
+            QSpinBox {
+    background-color:black;
+    color:white;
+    }"""
+        )
+
+        layout.addWidget(QLabel("n_components:"))
+        layout.addWidget(self.n_components_spinbox)
+
+        layout.addWidget(QLabel("random_state:"))
+        layout.addWidget(self.random_state_spinbox)
+
+        layout.addWidget(QLabel("max_iter:"))
+        layout.addWidget(self.max_iter_spinbox)
+        apply_button = QPushButton("Apply")
+        apply_button.clicked.connect(self.ok_clicked)
+        apply_button.setStyleSheet(
+            """
+    QPushButton {
+        background: #125904;
+        width: 100%;
+        
+
+    
+    }
+    
+    QPushButton:hover {
+        background-color: #1c8906;
+    }
+   
+    """
+        )
+        layout.addWidget(apply_button)
+
+        self.setLayout(layout)
+
+    def ok_clicked(self):
+        n_components = self.n_components_spinbox.value()
+        random_state = self.random_state_spinbox.value()
+        max_iter = self.max_iter_spinbox.value()
+        self.parent().my_eeg.preprocessing_ICA(n_components, random_state, max_iter)
+
+        self.hide()
