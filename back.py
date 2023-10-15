@@ -1,8 +1,10 @@
 import mne
 import matplotlib.pyplot as plt
+import tkinter as tk
+from globals import *
 from mne.channels import make_standard_montage
 from mne.datasets import eegbci
-
+from tkinter import messagebox
 
 class EEG:
     ica_bool = False  # True if ICA preprocessing has been applied
@@ -12,6 +14,7 @@ class EEG:
         if file_path != None:
             self.file_path = file_path
             self.raw = self.load_edf_data(self.file_path)
+
 
     # Loading the EDF raw data
     def load_edf_data(self, file_path):
@@ -131,7 +134,9 @@ class EEG:
             plt.show()
             return True
         else:
-            print("Plase apply ICA Preprocessing")
+            print("Plase apply ICA Preprocessing first")
+            message = "Please apply ICA Preprocessing first"
+            show_popup_message(message)
             return False
 
     # ICA - Components Topomap
@@ -143,7 +148,9 @@ class EEG:
             plt.show()
             return True
         else:
-            print("Plase apply ICA Preprocessing")
+            print("Plase apply ICA Preprocessing first")
+            message = "Please apply ICA Preprocessing first"
+            show_popup_message(message)
             return False
 
     # ICA - Components' Properties
@@ -153,5 +160,7 @@ class EEG:
             self.ica.plot_properties(self.raw, picks=picks)  # picks = self.ica.exclude
             return True
         else:
-            print("Plase apply ICA Preprocessing")
+            print("Plase apply ICA Preprocessing first")
+            message = "Please apply ICA Preprocessing first"
+            show_popup_message(message)
             return False
