@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
     QFrame,
     QLayout,
 )
-from PyQt6.QtGui import QIcon, QPixmap, QColor, QPalette
+from PyQt6.QtGui import QIcon, QPixmap, QColor, QPalette, QAction
 from PyQt6.QtCore import (
     Qt,
     QSize,
@@ -26,13 +26,14 @@ from PyQt6.QtCore import (
     QPoint,
 )
 from darktheme.widget_template_pyqt6 import DarkApplication, DarkPalette
-from components import LeftSideMenu, MyToolbar, MyDockMenu
+from components import LeftSideMenu, MyToolbar, MyDockMenu, MyMenu
 
+from globals import file_path
 
 # from back import display_raw_eeg
 
 
-# from back import *
+from back import EEG
 
 global raw_data
 
@@ -43,6 +44,7 @@ class BrainNex(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        self.my_eeg = EEG()
         self.setWindowTitle("BrainNex")
         # self.setGeometry(400, 400, 800, 600)
         self.setStyleSheet(
@@ -55,6 +57,7 @@ background-position: center;
 }
 """
         )
+
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         # Create a toolbar and add it to the QMainWindow
@@ -67,10 +70,15 @@ background-position: center;
         self.inner_widget.setLayout(self.inner_layout)
         self.main_layout.addWidget(self.inner_widget)
         # initialize LeftMenu class
+        self.mymenu = MyMenu(self)
+        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.mymenu)
+        self.mymenu.hide()
+        # self.setMenuBar(self.mymenu)
 
-        self.left_menu = LeftSideMenu()
-        self.left_menu.hide()
-        # create dick widget
+        # self.left_menu = LeftSideMenu()
+        # self.left_menu.hide()
+
+        # create dock widget
         self.dock = MyDockMenu(self)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
         self.dock.hide()
@@ -128,18 +136,20 @@ background-position: center;
             self, "Open EEG Data File", "", "EEG Files (*.edf *.fif);;"
         )
         if file_name:
-            raw = mne.io.read_raw_edf(file_name, preload=True)
-            global raw_data
-            raw_data = raw
-            # remove prev btns but show toolbar
-            # if hasattr(self, "toolbar"):
+            file_path = file_name
+            # raw = mne.io.read_raw_edf(file_name, preload=True)
+        self.raw = self.my_eeg.load_edf_data(file_path)
+        # global raw_data
+
+        # remove prev btns but show toolbar
+        # if hasattr(self, "toolbar"):
 
         if hide_btns:
             self.toolbar.show()
             self.upload_button.hide()
             self.live_button.hide()
 
-        self.display_raw_eeg(raw, widget)
+        self.display_raw_eeg(self.raw, widget)
 
     def read_live_data(self):
         # read real time or whatever
@@ -171,14 +181,24 @@ background-position: center;
         # Set the plot's background color to white
         plot_widget.setBackground("default")
 
-        pens = []
-        for i in range(raw.info["nchan"]):
-            pens.append(pg.mkPen(color=(255, 255, 255), width=1))
+        # pens = []
+        # for i in range(raw.info["nchan"]):
+        #     pens.append(pg.mkPen(color=(255, 255, 255), width=1))
 
-        # Plot the EEG data for each channel
+        # # Plot the EEG data for each channel
+        # for i in range(raw.info["nchan"]):
+        #     plot_widget.plot(raw.get_data()[i], pen=pens[i])
+        time_axis = raw.times
+        # Create a PlotDataItem for each channel with custom pens
+        pens = [pg.mkPen(color=("white"), width=1) for _ in range(raw.info["nchan"])]
+
         for i in range(raw.info["nchan"]):
             plot_widget.plot(raw.get_data()[i], pen=pens[i])
 
+        # Set up the plot with labels, titles, and styles
+        plot_widget.setLabel("left", "EEG Data")
+        plot_widget.setLabel("bottom", "Time (s)")
+        plot_widget.setTitle("EEG Data Plot")
         # Add the plot widget to the given widget
         layout.addWidget(plot_widget)
 

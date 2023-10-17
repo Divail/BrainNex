@@ -5,15 +5,23 @@ from PyQt6.QtWidgets import (
     QFrame,
     QToolBar,
     QDockWidget,
+    QMenu,
     QMenuBar,
+    QSizePolicy,
+    QWidget,
+    QLineEdit,
+    QComboBox,
+    QGridLayout,
+    QSpinBox,
 )
 from PyQt6.QtGui import QAction
 
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt, QSize, QPoint
 import qtawesome as qta
+from globals import file_path
 
 
-class LeftSideMenu(QMenuBar):
+class LeftSideMenu(QMenu):
     def __init__(self):
         super().__init__()
 
@@ -50,6 +58,18 @@ class LeftSideMenu(QMenuBar):
         btn_tdsep = QPushButton("TDSEP", self)
         btn_afdica = QPushButton("AFDICA", self)
         btn_sobiwhiten = QPushButton("SOBIwhiten", self)
+        btn_topomap_PSD = QPushButton("Topomap PSD", self)
+        btn_plot_electrode = QPushButton("Plot Electrode", self)
+        btn_preprocessing_ICA = QPushButton("Preprocessing ICA", self)
+        btn_plot_ica_properties = QPushButton("Plot ICA Properties", self)
+        btn_plot_ica_1D = QPushButton("Plot ICA 1D", self)
+        btn_plot_ica_topomap = QPushButton("Plot ICA Topomap", self)
+        btn_power_spectral_density = QPushButton("Power Spectral Density", self)
+        btn_psd_channels = QPushButton("PSD Channels", self)
+        btn_lowpass_filter = QPushButton("Lowpass Filter", self)
+        btn_highpass_filter = QPushButton("Highpass Filter", self)
+        btn_bandpass_filter = QPushButton("Bandpass Filter", self)
+        btn_reset_raw = QPushButton("Reset Raw", self)
         # Add actions or connections to filter buttons if needed
         btn_bandpass_filter.clicked.connect(self.apply_bandpass_filter)
         btn_notch_filter.clicked.connect(self.power_spectr_analys)
@@ -66,6 +86,25 @@ class LeftSideMenu(QMenuBar):
         btn_tdsep.clicked.connect(self.run_tdsep)
         btn_afdica.clicked.connect(self.run_afdica)
         btn_sobiwhiten.clicked.connect(self.run_sobiwhiten)
+        btn_topomap_PSD.clicked.connect(self.topomap_PSD)
+        btn_plot_electrode.clicked.connect(self.plot_electrode)
+        btn_preprocessing_ICA.clicked.connect(self.preprocessing_ICA)
+        btn_plot_ica_properties.clicked.connect(
+            lambda: self.plot_ica_components_properties([18, 11, 17])
+        )
+        btn_plot_ica_1D.clicked.connect(self.plot_ica_components_1D)
+        btn_plot_ica_topomap.clicked.connect(
+            lambda: self.plot_ica_components_topomap([0, 6, 7])
+        )
+        btn_power_spectral_density.clicked.connect(self.power_spectral_density)
+        btn_psd_channels.clicked.connect(
+            lambda: self.power_spectral_density_channels(["AFz", "CPz"])
+        )
+        btn_lowpass_filter.clicked.connect(self.lowpass_filtering)
+        btn_highpass_filter.clicked.connect(self.highpass_filtering)
+        btn_bandpass_filter.clicked.connect(self.bandpass_filtering)
+        btn_reset_raw.clicked.connect(self.reset_raw)
+
         # layout.addWidget(label)
         layout.addWidget(btn_bandpass_filter)
         layout.addWidget(btn_notch_filter)
@@ -82,6 +121,18 @@ class LeftSideMenu(QMenuBar):
         layout.addWidget(btn_tdsep)
         layout.addWidget(btn_afdica)
         layout.addWidget(btn_sobiwhiten)
+        layout.addWidget(btn_topomap_PSD)
+        layout.addWidget(btn_plot_electrode)
+        layout.addWidget(btn_preprocessing_ICA)
+        layout.addWidget(btn_plot_ica_properties)
+        layout.addWidget(btn_plot_ica_1D)
+        layout.addWidget(btn_plot_ica_topomap)
+        layout.addWidget(btn_power_spectral_density)
+        layout.addWidget(btn_psd_channels)
+        layout.addWidget(btn_lowpass_filter)
+        layout.addWidget(btn_highpass_filter)
+        layout.addWidget(btn_bandpass_filter)
+        layout.addWidget(btn_reset_raw)
         layout.addStretch(20)
 
     # implements stuff
@@ -132,6 +183,173 @@ class LeftSideMenu(QMenuBar):
         # preprocessing_ICA()
         pass
 
+    def topomap_PSD(self):
+        pass
+
+    def plot_electrode(self):
+        pass
+
+    def preprocessing_ICA(self):
+        pass
+
+    def plot_ica_components_properties(self, components=[18, 11, 17]):
+        pass
+
+    def plot_ica_components_1D(self):
+        pass
+
+    def plot_ica_components_topomap(self, components=[0, 6, 7]):
+        pass
+
+    def power_spectral_density(self):
+        pass
+
+    def power_spectral_density_channels(self, picks=["AFz", "CPz"]):
+        pass
+
+    def lowpass_filtering(self):
+        pass
+
+    def highpass_filtering(self):
+        pass
+
+    def bandpass_filtering(self):
+        pass
+
+    def reset_raw(self):
+        pass
+
+
+class MyMenu(QToolBar):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.setWindowTitle("Menu")
+        self.setFloatable(True)
+        self.setMovable(True)
+        # self.setFixedWidth(300)
+        # self.setMaximumSize(1000, 1000)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.setStyleSheet(
+            """ 
+            QToolBar { background-color:  #313131;
+                                 }
+            QToolBar:hover { background-color: #313131;
+                             color:#bebb48 ; }
+            QPushButton {
+               
+                color: black;
+               
+            }
+            """
+        )
+
+        # layout = QVBoxLayout(self)
+
+        layout = QVBoxLayout()
+        # Buttons for MNE filters and ICA analysis
+
+        # layout.addWidget(label)
+
+        layout.addStretch(20)
+
+        # implements stuff
+        # Buttons for MNE filters and ICA analysis
+        # btn_topomap_PSD = QPushButton("Topomap PSD", self)
+        # btn_plot_electrode = QPushButton("Plot Electrode", self)
+        btn_preprocessing_ICA = QAction("Preprocessing ICA", self)
+        btn_plot_ica_properties = QAction("Plot ICA Properties", self)
+        btn_plot_ica_1D = QAction("Plot ICA 1D", self)
+        btn_plot_ica_topomap = QAction("Plot ICA Topomap", self)
+        btn_power_spectral_density = QAction("Power Spectral Density", self)
+        btn_psd_channels = QAction("PSD Channels", self)
+        btn_lowpass_filter = QAction("Lowpass Filter", self)
+        btn_highpass_filter = QAction("Highpass Filter", self)
+        btn_bandpass_filter = QAction("Bandpass Filter", self)
+        # btn_reset_raw = QPushButton("Reset Raw", self)
+        # Add actions or connections to filter buttons if needed
+
+        # btn_topomap_PSD.clicked.connect(self.topomap_PSD)
+        # btn_plot_electrode.clicked.connect(self.plot_electrode)
+        btn_preprocessing_ICA.triggered.connect(self.preprocessing_ICA)
+        btn_plot_ica_properties.triggered.connect(
+            lambda: self.parent().my_eeg.plot_ica_components_properties(9)
+        )
+        btn_plot_ica_1D.triggered.connect(
+            lambda: self.parent().my_eeg.plot_ica_components_1D()
+        )
+        btn_plot_ica_topomap.triggered.connect(
+            lambda: self.parent().my_eeg.plot_ica_components_topomap([0, 6, 7])
+        )
+        btn_power_spectral_density.triggered.connect(self.power_spectral_density)
+        btn_psd_channels.triggered.connect(
+            lambda: self.parent().my_eeg.power_spectral_density_channels(["AFz", "CPz"])
+        )
+        btn_lowpass_filter.triggered.connect(self.lowpass_filtering)
+        btn_highpass_filter.triggered.connect(self.highpass_filtering)
+        btn_bandpass_filter.triggered.connect(self.bandpass_filtering)
+        # btn_reset_raw.clicked.connect(self.reset_raw)
+
+        # layout.addWidget(label)
+
+        # layout.addWidget(btn_topomap_PSD)
+        # layout.addWidget(btn_plot_electrode)
+        self.addAction(btn_preprocessing_ICA)
+        self.addAction(btn_plot_ica_properties)
+        self.addAction(btn_plot_ica_1D)
+        self.addAction(btn_plot_ica_topomap)
+        self.addAction(btn_power_spectral_density)
+        self.addAction(btn_psd_channels)
+        self.addAction(btn_lowpass_filter)
+        self.addAction(btn_highpass_filter)
+        self.addAction(btn_bandpass_filter)
+        # layout.addWidget(btn_reset_raw)
+        layout.addStretch(20)
+
+    # implements stuff
+    def power_spectr_analys():
+        # power_spectral_density_PSD()
+        pass
+
+    def apply_bandpass_filter(self):
+        pass
+
+    def run_ica_analysis(self):
+        # preprocessing_ICA()
+        pass
+
+    def topomap_PSD(self):
+        pass
+
+    def plot_electrode(self):
+        pass
+
+    def preprocessing_ICA(self):
+        self.parent().dock.show()
+
+    # self.parent().my_raw.preprocessing_ICA()
+
+    def plot_ica_components_1D(self):
+        pass
+
+    def power_spectral_density(self):
+        pass
+
+    def power_spectral_density_channels(self, picks=["AFz", "CPz"]):
+        pass
+
+    def lowpass_filtering(self):
+        pass
+
+    def highpass_filtering(self):
+        pass
+
+    def bandpass_filtering(self):
+        pass
+
+    def reset_raw(self):
+        pass
+
 
 class MyToolbar(QToolBar):
     def __init__(self, parent):
@@ -172,7 +390,6 @@ class MyToolbar(QToolBar):
         # self.tool_action.setStatusTip("This is your button")
         self.tool_action.triggered.connect(self.onMyToolBarButtonClick)
         self.tool_action.setCheckable(True)
-
         self.upload_action = QAction(upload_icon, "Upload", self)
         self.upload_action.triggered.connect(self.uploadMyData)
         self.read_time_data_action = QAction(live_read_data_icon, "Live Data", self)
@@ -196,11 +413,17 @@ class MyToolbar(QToolBar):
 
     def onMyToolBarButtonClick(self):
         if self.tool_action.isChecked():
-            # Show
-            self.parent().left_menu.show()
+            self.parent().mymenu.show()
         else:
-            # Hide
-            self.parent().left_menu.hide()
+            self.parent().mymenu.hide()
+
+    # def onMyToolBarButtonClick(self):
+    #     if self.tool_action.isChecked():
+    #         # Show
+    #         self.parent().left_menu.show()
+    #     else:
+    #         # Hide
+    #         self.parent().left_menu.hide()
 
     def uploadMyData(self):
         # self.inner_layout = self.parent().layout()
@@ -222,3 +445,63 @@ class MyDockMenu(QDockWidget):
         self.setWindowTitle("Options")
         # Create the dock
         self.setFixedWidth(350)
+
+        central_widget = QWidget()
+        self.setWidget(central_widget)
+        self.n_components_spinbox = QSpinBox()
+        self.n_components_spinbox.setValue(20)
+
+        self.random_state_spinbox = QSpinBox()
+        self.random_state_spinbox.setValue(97)
+
+        self.max_iter_spinbox = QSpinBox()
+        self.max_iter_spinbox.setValue(800)
+        layout = QVBoxLayout()
+        # layout.setContentsMargins(20, 10, 20, 10)
+        central_widget.setLayout(layout)
+
+        self.setStyleSheet(
+            """
+            QSpinBox {
+    background-color:black;
+    color:white;
+    }"""
+        )
+
+        layout.addWidget(QLabel("n_components:"))
+        layout.addWidget(self.n_components_spinbox)
+
+        layout.addWidget(QLabel("random_state:"))
+        layout.addWidget(self.random_state_spinbox)
+
+        layout.addWidget(QLabel("max_iter:"))
+        layout.addWidget(self.max_iter_spinbox)
+        apply_button = QPushButton("Apply")
+        apply_button.clicked.connect(self.ok_clicked)
+        apply_button.setStyleSheet(
+            """
+    QPushButton {
+        background: #125904;
+        width: 100%;
+        
+
+    
+    }
+    
+    QPushButton:hover {
+        background-color: #1c8906;
+    }
+   
+    """
+        )
+        layout.addWidget(apply_button)
+
+        self.setLayout(layout)
+
+    def ok_clicked(self):
+        n_components = self.n_components_spinbox.value()
+        random_state = self.random_state_spinbox.value()
+        max_iter = self.max_iter_spinbox.value()
+        self.parent().my_eeg.preprocessing_ICA(n_components, random_state, max_iter)
+
+        self.hide()
