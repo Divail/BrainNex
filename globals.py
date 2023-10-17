@@ -5,7 +5,7 @@ file_path = None
 
 
 #ERROR POPUP MSG
-def show_popup_message(message):
+def show_popup_message(status, message):
     root = tk.Tk()
     root.withdraw()  # Hide the main window
-    messagebox.showinfo("ERROR", message)
+    messagebox.showinfo(status, message)

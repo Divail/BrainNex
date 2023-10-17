@@ -5,6 +5,7 @@ from globals import *
 from mne.channels import make_standard_montage
 from mne.datasets import eegbci
 from tkinter import messagebox
+from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QMessageBox, QPushButton
 
 class EEG:
     ica_bool = False  # True if ICA preprocessing has been applied
@@ -120,6 +121,8 @@ class EEG:
         )
         self.ica.fit(self.raw)
         self.ica_bool = True
+        message = "ICA Preprocessing applied"
+        show_popup_message("SUCCSESS", message)
         return True
         # self.ica.exclude = [15]  # ICA components
 
@@ -134,9 +137,8 @@ class EEG:
             plt.show()
             return True
         else:
-            print("Plase apply ICA Preprocessing first")
             message = "Please apply ICA Preprocessing first"
-            show_popup_message(message)
+            show_popup_message("ERROR", message)
             return False
 
     # ICA - Components Topomap
@@ -150,7 +152,7 @@ class EEG:
         else:
             print("Plase apply ICA Preprocessing first")
             message = "Please apply ICA Preprocessing first"
-            show_popup_message(message)
+            show_popup_message("ERROR", message)
             return False
 
     # ICA - Components' Properties
@@ -162,5 +164,5 @@ class EEG:
         else:
             print("Plase apply ICA Preprocessing first")
             message = "Please apply ICA Preprocessing first"
-            show_popup_message(message)
+            show_popup_message("ERROR", message)
             return False
