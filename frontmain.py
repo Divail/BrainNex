@@ -16,6 +16,9 @@ from PyQt6.QtWidgets import (
     QDockWidget,
     QFrame,
     QLayout,
+    QSizePolicy,
+    QScrollArea,
+    QScrollBar,
 )
 from PyQt6.QtGui import QIcon, QPixmap, QColor, QPalette, QAction
 from PyQt6.QtCore import (
@@ -174,35 +177,52 @@ background-position: center;
     def get_raw_data():
         return raw_data
 
-    # this bs display func needd to be rewritten
     def display_raw_eeg(self, raw, layout):
-        plot_widget = pg.PlotWidget()
+        # Create a QWidget to hold the PlotWidgets
+        widget = QWidget()
+        scroll_area = QScrollArea()
 
-        # Set the plot's background color to white
-        plot_widget.setBackground("default")
+        scroll_area.setWidgetResizable(True)
 
-        # pens = []
-        # for i in range(raw.info["nchan"]):
-        #     pens.append(pg.mkPen(color=(255, 255, 255), width=1))
+        v_layout = QVBoxLayout()
 
-        # # Plot the EEG data for each channel
-        # for i in range(raw.info["nchan"]):
-        #     plot_widget.plot(raw.get_data()[i], pen=pens[i])
+        widget.setLayout(v_layout)
+
+        eeg_data = raw.get_data()
         time_axis = raw.times
-        # Create a PlotDataItem for each channel with custom pens
-        pens = [pg.mkPen(color=("white"), width=1) for _ in range(raw.info["nchan"])]
 
-        for i in range(raw.info["nchan"]):
-            plot_widget.plot(raw.get_data()[i], pen=pens[i])
+        # Create a list to hold the PlotWidgets for each channel
+        plot_widgets = []
 
-        # Set up the plot with labels, titles, and styles
-        plot_widget.setLabel("left", "EEG Data")
-        plot_widget.setLabel("bottom", "Time (s)")
-        plot_widget.setTitle("EEG Data Plot")
-        # Add the plot widget to the given widget
-        layout.addWidget(plot_widget)
+        for i in range(eeg_data.shape[0]):
+            # Create a PlotWidget for each channel
 
-    # widget.addWidget(self.raw_eeg_plot.get_figure().canvas)
+            plot_widget = pg.PlotWidget()
+
+            plot_widgets.append(plot_widget)
+
+            # Plot the EEG data for the channel
+            plot_widget.plot(
+                time_axis, eeg_data[i], pen=pg.mkPen(color=(255, 255, 255), width=1)
+            )
+
+            # Add the channel name as the title for each PlotWidget
+            channel_name = raw.info["ch_names"][i]
+            plot_widget.setLabel("left", channel_name)
+            plot_widget.setTitle(channel_name)
+            plot_widget.setLabel("bottom", "Time (s)")
+            plot_widget.setMinimumHeight(150)
+            # Ensure all channels are visible and have their own space
+            plot_widget.setYRange(eeg_data.min(), eeg_data.max())
+
+            # Add the PlotWidget to the vertical layout
+            v_layout.addWidget(plot_widget)
+
+        # Add the widget containing all PlotWidgets to the layout
+        scroll_area.setWidget(widget)
+        layout.addWidget(scroll_area)
+
+    # layout.addWidget(self.raw_eeg_plot.get_figure().canvas)
 
     def split_screen(self):
         splitter = QSplitter(Qt.Horizontal)
