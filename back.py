@@ -7,6 +7,7 @@ from mne.datasets import eegbci
 from tkinter import messagebox
 from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QMessageBox, QPushButton
 
+
 class EEG:
     ica_bool = False  # True if ICA preprocessing has been applied
     psd_bool = False
@@ -15,7 +16,6 @@ class EEG:
         if file_path != None:
             self.file_path = file_path
             self.raw = self.load_edf_data(self.file_path)
-
 
     # Loading the EDF raw data
     def load_edf_data(self, file_path):
@@ -66,6 +66,7 @@ class EEG:
             self.raw.compute_psd().plot_topomap()
 
             plt.show()
+
             return True
         else:
             print("PSD has not been calculated")

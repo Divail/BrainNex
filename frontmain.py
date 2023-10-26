@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QHBoxLayout,
-    QListWidget,
     QSplitter,
     QDockWidget,
     QFrame,
@@ -29,16 +28,10 @@ from PyQt6.QtCore import (
     QPoint,
 )
 from darktheme.widget_template_pyqt6 import DarkApplication, DarkPalette
-from components import LeftSideMenu, MyToolbar, MyDockMenu, MyMenu
-
+from components import MyToolbar, MyDockMenu, MyMenu
 from globals import file_path
-
-# from back import display_raw_eeg
-
-
+import qdarktheme
 from back import EEG
-
-global raw_data
 
 
 class BrainNex(QMainWindow):
@@ -50,16 +43,16 @@ class BrainNex(QMainWindow):
         self.my_eeg = EEG()
         self.setWindowTitle("BrainNex")
         # self.setGeometry(400, 400, 800, 600)
-        self.setStyleSheet(
-            """
-QMainWindow {
-background-image:url(backgr);
-background-repeat:repeat;
-background-position: center;
+        #        # self.setStyleSheet(
+        #             """
+        # QMainWindow {
+        # background-image:url(backgr);
+        # background-repeat:repeat;
+        # background-position: center;
 
-}
-"""
-        )
+        # }
+        # """
+        #         )
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -76,8 +69,8 @@ background-position: center;
         self.mymenu = MyMenu(self)
         self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.mymenu)
         self.mymenu.hide()
-        # self.setMenuBar(self.mymenu)
 
+        # we Dont use LEFT menu rn
         # self.left_menu = LeftSideMenu()
         # self.left_menu.hide()
 
@@ -102,8 +95,7 @@ background-position: center;
         border: 1px solid #3d4f7c;
         padding: 2px;
         border-radius:75%;
-    }
-    
+    }  
     QPushButton:hover {
         background-color:#868789;
     }
@@ -132,8 +124,6 @@ background-position: center;
 
         self.inner_layout.addLayout(button_layout)
 
-        self.raw_eeg_plot = None
-
     def upload_data(self, widget, hide_btns=True):
         file_name, _ = QFileDialog.getOpenFileName(
             self, "Open EEG Data File", "", "EEG Files (*.edf *.fif);;"
@@ -158,9 +148,9 @@ background-position: center;
         # read real time or whatever
         pass
 
-    def show_all_channels(self):
+    def show_all_channels(self, raw):
         # Create the EEG plot
-        self.raw_eeg_plot = mne.viz.plot_raw(raw_data, show=False)
+        self.raw_eeg_plot = mne.viz.plot_raw(raw, show=False)
 
         # Show the EEG plot in a separate window using mne
         self.raw_eeg_plot.canvas.manager.window.show()
@@ -174,51 +164,42 @@ background-position: center;
     def display_selected_channels(self):
         pass
 
-    def get_raw_data():
-        return raw_data
-
     def display_raw_eeg(self, raw, layout):
-        # Create a QWidget to hold the PlotWidgets
         widget = QWidget()
-        scroll_area = QScrollArea()
 
+        scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
 
         v_layout = QVBoxLayout()
-
         widget.setLayout(v_layout)
 
         eeg_data = raw.get_data()
         time_axis = raw.times
 
-        # Create a list to hold the PlotWidgets for each channel
+        #  list to hold the PlotWidgets for each channel
         plot_widgets = []
 
         for i in range(eeg_data.shape[0]):
-            # Create a PlotWidget for each channel
-
             plot_widget = pg.PlotWidget()
 
             plot_widgets.append(plot_widget)
 
-            # Plot the EEG data for the channel
+            # graph the EEG data for the channel
             plot_widget.plot(
                 time_axis, eeg_data[i], pen=pg.mkPen(color=(255, 255, 255), width=1)
             )
-
-            # Add the channel name as the title for each PlotWidget
             channel_name = raw.info["ch_names"][i]
             plot_widget.setLabel("left", channel_name)
-            plot_widget.setTitle(channel_name)
+            plot_widget.setTitle(f"{i + 1}: {channel_name}")
             plot_widget.setLabel("bottom", "Time (s)")
-            plot_widget.setMinimumHeight(150)
-            # Ensure all channels are visible and have their own space
-            plot_widget.setYRange(eeg_data.min(), eeg_data.max())
+            plot_widget.setMinimumHeight(180)
 
-            # Add the PlotWidget to the vertical layout
+            #
+            plot_widget.setYRange(eeg_data.min(), eeg_data.max())
+            # plot_widget.setXRange(time_axis.min(), time_axis.max())
             v_layout.addWidget(plot_widget)
 
-        # Add the widget containing all PlotWidgets to the layout
+        # add the widget containing all PlotWidgets to the layout
         scroll_area.setWidget(widget)
         layout.addWidget(scroll_area)
 
@@ -229,16 +210,14 @@ background-position: center;
 
         left_widget = QMainWindow()
         right_widget = QMainWindow()
-        # left_layout = QVBoxLayout()
-        # right_layout = QVBoxLayout()
-        # Create the central widget for each split window
+
+        # create the central widget for each split window
         left_central_widget = QWidget()
         right_central_widget = QWidget()
 
         left_widget.setCentralWidget(left_central_widget)
         right_widget.setCentralWidget(right_central_widget)
-        # left_widget.setLayout(left_layout)
-        # right_widget.setLayout(right_layout)
+
         splitter.addWidget(left_widget)
         splitter.addWidget(right_widget)
         self.toolbar.close()
@@ -248,8 +227,16 @@ background-position: center;
         # left_widget.inner_layout = left_widget.layout()
         left_widget.inner_layout = QVBoxLayout()
         left_central_widget.setLayout(left_widget.inner_layout)
-
+        left_widget.my_eeg = EEG()
         left_tool = MyToolbar(left_widget)
+        left_widget.dock = MyDockMenu(left_widget)
+        left_widget.addDockWidget(
+            Qt.DockWidgetArea.LeftDockWidgetArea, left_widget.dock
+        )
+        left_widget.dock.hide()
+        left_widget.mymenu = MyMenu(left_widget)
+        left_widget.addToolBar(Qt.ToolBarArea.RightToolBarArea, left_widget.mymenu)
+        left_widget.mymenu.hide()
         left_widget.upload_data = self.upload_data
         left_widget.addToolBar(left_tool)
         left_widget.left_menu = LeftSideMenu()
@@ -258,8 +245,16 @@ background-position: center;
         # do right main window
         right_widget.inner_layout = QVBoxLayout()
         right_central_widget.setLayout(right_widget.inner_layout)
-
-        right_tool = MyToolbar(left_widget)
+        right_widget.my_eeg = EEG()
+        right_tool = MyToolbar(right_widget)
+        right_widget.dock = MyDockMenu(right_widget)
+        right_widget.addDockWidget(
+            Qt.DockWidgetArea.LeftDockWidgetArea, right_widget.dock
+        )
+        right_widget.dock.hide()
+        right_widget.mymenu = MyMenu(right_widget)
+        right_widget.addToolBar(Qt.ToolBarArea.RightToolBarArea, right_widget.mymenu)
+        right_widget.mymenu.hide()
         right_widget.upload_data = self.upload_data
         right_widget.addToolBar(right_tool)
         right_widget.left_menu = LeftSideMenu()
@@ -267,9 +262,18 @@ background-position: center;
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setPalette(DarkPalette())
+    # app.setPalette(DarkPalette())
     icon = QIcon("brain-icon.png")
+
     app.setWindowIcon(icon)
+    qdarktheme.setup_theme(
+        custom_colors={
+            "[dark]": {
+                "primary": "#ffffff",
+            }
+        }
+    )
+    app.setPalette(qdarktheme.load_palette("dark"))
     window = BrainNex()
     window.showMaximized()
     window.show()
