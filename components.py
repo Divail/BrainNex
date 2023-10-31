@@ -292,7 +292,6 @@ class MyDockMenu(QDockWidget):
             self.form_layout.addWidget(QLabel("Picks:"))
             self.form_layout.addRow(self.picks_line_edit)
 
-            # Create a button to trigger the function
             plot_button = QPushButton("Plot Properties")
             plot_button.clicked.connect(self.plot_ica_properties_cklicked)
             self.form_layout.addWidget(plot_button)
@@ -309,6 +308,7 @@ class MyDockMenu(QDockWidget):
         picks_text = self.picks_line_edit.text()
         picks = [int(pick.strip()) for pick in picks_text.split(",")]
         self.parent().my_eeg.plot_ica_components_properties(picks=picks)
+        self.hide()
 
 
 # class LeftSideMenu(QMenu):
