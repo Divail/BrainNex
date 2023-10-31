@@ -73,13 +73,21 @@ class MyMenu(QToolBar):
         btn_plot_ica_topomap.triggered.connect(
             lambda: self.parent().my_eeg.plot_ica_components_topomap([0, 6, 7])
         )
-        btn_power_spectral_density.triggered.connect(self.power_spectral_density)
+        btn_power_spectral_density.triggered.connect(
+            lambda: self.parent().my_eeg.power_spectral_density()
+        )
         btn_psd_channels.triggered.connect(
             lambda: self.parent().my_eeg.power_spectral_density_channels(["AFz", "CPz"])
         )
-        btn_lowpass_filter.triggered.connect(self.lowpass_filtering)
-        btn_highpass_filter.triggered.connect(self.highpass_filtering)
-        btn_bandpass_filter.triggered.connect(self.bandpass_filtering)
+        btn_lowpass_filter.triggered.connect(
+            lambda: self.parent().my_eeg.lowpass_filtering()
+        )
+        btn_highpass_filter.triggered.connect(
+            lambda: self.parent().my_eeg.highpass_filtering()
+        )
+        btn_bandpass_filter.triggered.connect(
+            lambda: self.parent().my_eeg.bandpass_filtering()
+        )
         # btn_reset_raw.clicked.connect(self.reset_raw)
 
         self.addAction(btn_preprocessing_ICA)
