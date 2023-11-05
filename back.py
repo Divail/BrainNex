@@ -1,11 +1,14 @@
 import mne
+import matplotlib
 import matplotlib.pyplot as plt
 import tkinter as tk
 from globals import *
 from mne.channels import make_standard_montage
 from mne.datasets import eegbci
 from tkinter import messagebox
-from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QMessageBox, QPushButton
+
+
+mne.viz.set_browser_backend("matplotlib")
 
 
 class EEG:
@@ -65,7 +68,7 @@ class EEG:
             # Plot topomap (heatmap) of power spectral density of raw data
             self.raw.compute_psd().plot_topomap()
 
-            plt.show()
+            plt.show(block=True)
 
             return True
         else:

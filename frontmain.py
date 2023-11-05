@@ -3,6 +3,7 @@ import mne
 import numpy as np
 import matplotlib.pyplot as plt
 import pyqtgraph as pg
+import qdarktheme
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -19,7 +20,8 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QScrollBar,
     QLabel,
-    QDialog,
+    QMenu,
+    QToolBar,
 )
 from PyQt6.QtGui import QIcon, QPixmap, QColor, QPalette, QAction
 from PyQt6.QtCore import (
@@ -30,10 +32,10 @@ from PyQt6.QtCore import (
     QPoint,
 )
 import qtawesome as qta
-from darktheme.widget_template_pyqt6 import DarkApplication, DarkPalette
+
 from components import MyToolbar, MyDockMenu, MyMenu
 from globals import file_path
-import qdarktheme
+
 from back import EEG
 
 
@@ -61,6 +63,7 @@ class BrainNex(QMainWindow):
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
+
         # Create a toolbar and add it to the QMainWindow
         self.toolbar = MyToolbar(self)
         self.addToolBar(self.toolbar)  # Show the toolbar
@@ -84,13 +87,22 @@ class BrainNex(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
         self.dock.hide()
 
-        # create first two btn
+        # cr eate first two btn
         button_layout = QHBoxLayout()
+
+        split = qta.icon(
+            "fa5s.columns",
+            color="#ffffff",
+        )
+        self.button = QPushButton("Split screen")
+        self.button.setIcon(split)
+        self.button.clicked.connect(self.split_screen)
         self.upload_button = QPushButton("Upload", self)
         self.upload_button.clicked.connect(
             lambda: self.upload_data(self.inner_layout, hide_btns=True)
         )
         # self.upload_button.clicked.connect(self.upload_button.deleteLater)
+
         self.upload_button.setStyleSheet(
             """
     QPushButton {
@@ -128,6 +140,7 @@ class BrainNex(QMainWindow):
         button_layout.addWidget(self.live_button)
 
         self.inner_layout.addLayout(button_layout)
+        self.inner_layout.addWidget(self.button)
 
     def upload_data(self, widget, hide_btns=True):
         file_name, _ = QFileDialog.getOpenFileName(
@@ -143,6 +156,7 @@ class BrainNex(QMainWindow):
             self.toolbar.show()
             self.upload_button.hide()
             self.live_button.hide()
+            self.button.hide()
 
         self.display_raw_eeg(self.raw, widget)
 
@@ -249,7 +263,7 @@ class BrainNex(QMainWindow):
         #  popup window to display the channel data separately
 
         self.popup_widget = QWidget()
-
+        self.popup_widget.showMaximized()
         popup_layout = QVBoxLayout()
         self.popup_widget.setLayout(popup_layout)
 
