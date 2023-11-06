@@ -435,19 +435,28 @@ class MyDockMenu(QDockWidget):
 
     def plot_ica_properties_cklicked(self):
         picks_text = self.picks_line_edit.text()
-        picks = [int(pick.strip()) for pick in picks_text.split(",")]
+        if picks_text == '':
+            picks = None
+        else:
+            picks = [int(pick.strip()) for pick in picks_text.split(",")]
         self.parent().my_eeg.plot_ica_components_properties(picks=picks)
         self.hide()
 
     def plot_ica_1d(self):
         picks_text = self.picks_input.text()
-        picks = [int(pick.strip()) for pick in picks_text.split(",")]
+        if picks_text == '':
+            picks = None
+        else:
+            picks = [int(pick.strip()) for pick in picks_text.split(",")]
         self.parent().my_eeg.plot_ica_components_1D(picks)
         self.hide()
 
     def plot_ica_topomap_cklicked(self):
         picks_text = self.picks_line_edit.text()
-        picks = [int(pick.strip()) for pick in picks_text.split(",")]
+        if picks_text == '':
+            picks = None
+        else:
+            picks = [int(pick.strip()) for pick in picks_text.split(",")]
         self.parent().my_eeg.plot_ica_components_topomap(picks=picks)
         self.hide()
 
