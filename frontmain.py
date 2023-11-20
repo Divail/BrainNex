@@ -13,26 +13,16 @@ from PyQt6.QtWidgets import (
     QWidget,
     QHBoxLayout,
     QSplitter,
-    QDockWidget,
-    QFrame,
-    QLayout,
-    QSizePolicy,
     QScrollArea,
-    QScrollBar,
     QLabel,
+    QSystemTrayIcon,
     QMenu,
-    QToolBar,
 )
-from PyQt6.QtGui import QIcon, QPixmap, QColor, QPalette, QAction
+from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import (
     Qt,
-    QSize,
-    QPropertyAnimation,
-    QSequentialAnimationGroup,
-    QPoint,
 )
 import qtawesome as qta
-
 from components import MyToolbar, MyDockMenu, MyMenu
 from globals import file_path
 
@@ -45,10 +35,12 @@ class BrainNex(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        # init eeg class
         self.my_eeg = EEG()
-        self.left_eeg = EEG()
-        self.right_eeg = EEG()
+        # self.left_eeg = EEG()
+        # self.right_eeg = EEG()
         self.setWindowTitle("BrainNex")
+
         # self.setGeometry(400, 400, 800, 600)
         #        # self.setStyleSheet(
         #             """
@@ -73,82 +65,72 @@ class BrainNex(QMainWindow):
         self.inner_layout = QVBoxLayout()
         self.inner_widget.setLayout(self.inner_layout)
         self.main_layout.addWidget(self.inner_widget)
-        # initialize LeftMenu class
+        # initialize menu options class
         self.mymenu = MyMenu(self)
         self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.mymenu)
         self.mymenu.hide()
 
-        # we Dont use LEFT menu rn
-        # self.left_menu = LeftSideMenu()
-        # self.left_menu.hide()
-
-        # create dock widget
+        # init dock widget
         self.dock = MyDockMenu(self)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
         self.dock.hide()
 
-        # cr eate first two btn
+        # create first two btn layout
         button_layout = QHBoxLayout()
-
+        # split btn
         split = qta.icon(
             "fa5s.columns",
             color="#ffffff",
         )
-        self.button = QPushButton("Split screen")
-        self.button.setIcon(split)
-        self.button.clicked.connect(self.split_screen)
+        self.split_button = QPushButton("Split screen")
+        self.split_button.setIcon(split)
+        self.split_button.clicked.connect(self.split_screen)
+        # upload btn
         self.upload_button = QPushButton("Upload", self)
         self.upload_button.clicked.connect(
             lambda: self.upload_data(self.inner_layout, hide_btns=True)
         )
-        # self.upload_button.clicked.connect(self.upload_button.deleteLater)
-
+        self.upload_button.setObjectName("upload_button")
         self.upload_button.setStyleSheet(
             """
-    QPushButton {
-        background: #1e2947;
-        width: 100%;
-        margin-top: 2px;
-        border: 1px solid #3d4f7c;
-        padding: 2px;
-        border-radius:75%;
-    }  
-    QPushButton:hover {
-        background-color:#868789;
-    }
-    """
+        #upload_button {
+            background: #1e2947;
+            color: #ffffff;
+        }
+        #upload_button:hover {
+            background-color:#868789;
+        }
+        """
         )
         button_layout.addWidget(self.upload_button)
+        # read live data btn
         self.live_button = QPushButton("Read Time Data", self)
         self.live_button.clicked.connect(self.read_live_data)
+        self.live_button.setObjectName("live_button")
         self.live_button.setStyleSheet(
             """
-    QPushButton {
-        background: #575523;
-        width: 100%;
-        margin-top: 2px;
-        border: 1px solid #897e03;
-        padding: 2px;
-        border-radius:75%;
-    }
+        #live_button {
+            background: #575523;
+            color: #ffffff;
+        }
     
-    QPushButton:hover {
-        background-color: #868789;
-    }
-    """
+        #live_button:hover {
+            background-color: #868789;
+        }
+        """
         )
         button_layout.addWidget(self.live_button)
 
         self.inner_layout.addLayout(button_layout)
-        self.inner_layout.addWidget(self.button)
+        self.inner_layout.addWidget(self.split_button)
 
+    # func to upload data from local env
     def upload_data(self, widget, hide_btns=True):
         file_name, _ = QFileDialog.getOpenFileName(
             self, "Open EEG Data File", "", "EEG Files (*.edf *.fif);;"
         )
         if file_name:
             file_path = file_name
-            # raw = mne.io.read_raw_edf(file_name, preload=True)
 
         self.raw = self.my_eeg.load_edf_data(file_path)
 
@@ -156,33 +138,25 @@ class BrainNex(QMainWindow):
             self.toolbar.show()
             self.upload_button.hide()
             self.live_button.hide()
-            self.button.hide()
-
+            self.split_button.hide()
+        # send uploaded data to be displayed on screen
         self.display_raw_eeg(self.raw, widget)
 
     def read_live_data(self):
-        # read real time or whatever
+        # read live data ; future development
         pass
 
     def show_all_channels(self, raw):
-        # Create the EEG plot
         self.raw_eeg_plot = mne.viz.plot_raw(raw, show=False)
 
         # Show the EEG plot in a separate window using mne
         self.raw_eeg_plot.canvas.manager.window.show()
 
-    def add_channel_to_watchlist(self):
-        pass
-
-    def create_watchlist(self):
-        pass
-
-    def display_selected_channels(self):
-        pass
-
+    # func to display data after upload
     def display_raw_eeg(self, raw, layout):
         widget = QWidget()
         data_path_label = QLabel(f"Data: {self.my_eeg.file_path.split('/')[-1]}")
+        # create sroll area
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
 
@@ -195,9 +169,9 @@ class BrainNex(QMainWindow):
         #  list to hold the PlotWidgets for each channel
         plot_widgets = []
         display_icon = qta.icon(
-            "fa5s.tv",
+            "fa5s.arrow-right",
             color="#ffffff",
-            color_active="grey",
+            color_active="#ffff00",
         )
         for i in range(eeg_data.shape[0]):
             plot_widget = pg.PlotWidget()
@@ -214,40 +188,30 @@ class BrainNex(QMainWindow):
             plot_widget.setLabel("bottom", "Time (s)")
             plot_widget.setMinimumHeight(180)
 
-            x_min = time_axis.min()
-            x_max = time_axis.max()
-            plot_widget.setXRange(x_min, x_max)
-            # plot_widget.setYRange(eeg_data.min(), eeg_data.max())
-            # plot_widget.setXRange(time_axis.min(), time_axis.max())
-            v_layout.addWidget(plot_widget)
+            plot_widget.setXRange(0.5, 15)
 
+            v_layout.addWidget(plot_widget)
+            # dispaly selected data chanell in separate window btn
             channel_button = QPushButton()
             channel_button.setFixedSize(20, 20)
-            # channel_button.setStyleSheet("background-color: blue; border-radius: 5px;")
             channel_button.setIcon(display_icon)
-            # channel_button.setStyleSheet(
-            #     """
-            # QPushButton {
-            #     background-color: transparent;
-            # }
-
-            # """
-            # )
+            channel_button.setObjectName("channel_button")
             channel_button.setStyleSheet(
                 """
-            QPushButton {
-                background-color: #003366; border-radius: 5px;
+            #channel_button {
+                background-color: #003366; border-radius:10px;
+               
             }
-
-            QPushButton:hover {
+            #channel_button:hover {
                 background-color: #00416a;
+                border-color:#EEEEEE;
             }
             """
             )
             channel_layout.addWidget(channel_button)
-            # v_layout.addWidget(channel_button)
             channel_layout.addWidget(plot_widget)
             v_layout.addLayout(channel_layout)
+
             # Connect a slot to the button click event to open a popup window
             channel_button.clicked.connect(
                 lambda state, i=i: self.show_channel_popup(raw, i)
@@ -268,42 +232,43 @@ class BrainNex(QMainWindow):
         self.popup_widget.setLayout(popup_layout)
 
         channel_data = raw.get_data()[channel_index]
+
         time_axis = raw.times
 
         channel_plot_widget = pg.PlotWidget()
+
         channel_plot_widget.plot(
             time_axis, channel_data, pen=pg.mkPen(color=(255, 255, 255), width=1)
         )
+        channel_plot_widget.setXRange(0.5, 10)
         channel_name = raw.info["ch_names"][channel_index]
         channel_plot_widget.setLabel("left", channel_name)
         channel_plot_widget.setLabel("bottom", "Time (s)")
         channel_plot_widget.setTitle(f"{channel_name} Data")
         popup_layout.addWidget(channel_plot_widget)
-
         self.popup_widget.setWindowTitle(f"Channel {channel_name} Data")
         self.popup_widget.show()
 
     def split_screen(self):
-        splitter = QSplitter(Qt.Horizontal)
+        # self.toolbar.close()
 
+        splitter = QSplitter(Qt.Horizontal)
         left_widget = BrainNex()
         right_widget = BrainNex()
 
         # create the central widget for each split window
         left_central_widget = QWidget()
         right_central_widget = QWidget()
-        left_widget.my_eeg = self.left_eeg
-        right_widget.my_eeg = self.right_eeg
+        left_widget.my_eeg = EEG()
+        right_widget.my_eeg = EEG()
         left_widget.setCentralWidget(left_central_widget)
         right_widget.setCentralWidget(right_central_widget)
 
         splitter.addWidget(left_widget)
         splitter.addWidget(right_widget)
-        self.toolbar.close()
-        # self.main_layout.addWidget(splitter)
+
         self.setCentralWidget(splitter)
-        # left main window
-        # left_widget.inner_layout = left_widget.layout()
+        # set left spliited window
         left_widget.inner_layout = QVBoxLayout()
         left_central_widget.setLayout(left_widget.inner_layout)
 
@@ -320,7 +285,6 @@ class BrainNex(QMainWindow):
 
         left_widget.addToolBar(left_tool)
 
-        # left_widget.setLayout(left_widget.inner_layout)
         # do right main window
         right_widget.inner_layout = QVBoxLayout()
         right_central_widget.setLayout(right_widget.inner_layout)
@@ -338,21 +302,71 @@ class BrainNex(QMainWindow):
         right_widget.addToolBar(right_tool)
 
 
+def changeToLightTheme():
+    qdarktheme.setup_theme("light")
+    app.setPalette(qdarktheme.load_palette("light"))
+    app.palette()
+
+
+def changeToDarkTheme():
+    qdarktheme.setup_theme("dark")
+    app.setPalette(qdarktheme.load_palette("dark"))
+
+
+def showMainWindow():
+    window.showMaximized()
+    window.show()
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # app.setPalette(DarkPalette())
     icon = QIcon("brain-icon.png")
-
     app.setWindowIcon(icon)
-    qdarktheme.setup_theme(
-        custom_colors={
-            "[dark]": {
-                "primary": "#ffffff",
-            }
-        }
-    )
+    app.setQuitOnLastWindowClosed(False)
+    qdarktheme.setup_theme("dark")
     app.setPalette(qdarktheme.load_palette("dark"))
+    # main application window entry
     window = BrainNex()
+    # Create the tray for visibility in OS  toolbar
+    tray = QSystemTrayIcon()
+    tray.setIcon(icon)
+    tray.setVisible(True)
+
+    # create the menu
+    menu = QMenu()
+    sun_icon = qta.icon(
+        "fa5.sun",
+        active="fa5.sun",
+        color="#ffffff",
+        color_active="#cbcbcb",
+    )
+    moon_icon = qta.icon(
+        "fa5s.moon",
+        active="fa5s.moon",
+        color="#ffffff",
+        color_active="#cbcbcb",
+    )
+    main_icon = qta.icon(
+        "fa5s.tv",
+        active="fa5s.tv",
+        color="#ffffff",
+        color_active="#cbcbcb",
+    )
+    actionLight = QAction(sun_icon, "Light Theme")
+    actionLight.triggered.connect(changeToLightTheme)
+
+    actionDark = QAction(moon_icon, "Dark Theme")
+    actionDark.triggered.connect(changeToDarkTheme)
+    show = QAction(main_icon, "Main Screen")
+    show.triggered.connect(showMainWindow)
+    quit = QAction("Quit")
+    quit.triggered.connect(app.quit)
+    menu.addAction(actionDark)
+    menu.addAction(actionLight)
+    menu.addAction(show)
+    menu.addAction(quit)
+    tray.setContextMenu(menu)
+
     window.showMaximized()
     window.show()
     sys.exit(app.exec())

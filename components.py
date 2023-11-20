@@ -1,30 +1,24 @@
 from PyQt6.QtWidgets import (
     QPushButton,
     QVBoxLayout,
-    QHBoxLayout,
     QLabel,
-    QFrame,
     QToolBar,
     QDockWidget,
-    QMenu,
-    QMenuBar,
     QSizePolicy,
     QWidget,
     QLineEdit,
     QComboBox,
-    QGridLayout,
     QSpinBox,
     QFormLayout,
-    QCheckBox,
     QDoubleSpinBox,
 )
 from PyQt6.QtGui import QAction
-import mne
-from PyQt6.QtCore import Qt, QSize, QPoint
+from PyQt6.QtCore import QSize
 import qtawesome as qta
 from globals import file_path
 
 
+# options class, what eeg funct is operable
 class MyMenu(QToolBar):
     def __init__(self, parent):
         super().__init__(parent)
@@ -35,23 +29,9 @@ class MyMenu(QToolBar):
         # self.setFixedWidth(300)
         # self.setMaximumSize(1000, 1000)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.setStyleSheet(
-            """ 
-            QToolBar { 
-                background-color:  #313131;
-             }
-            QToolBar:hover { 
-                background-color: #313131;
-                color:#bebb48;
-             }
-            QPushButton {  
-                color: black;           
-            }
-         """
-        )
         layout = QVBoxLayout()
         layout.addStretch(20)
-        # implements stuff
+        # define btns QActions
         btn_preprocessing_ICA = QAction("Preprocessing ICA", self)
         btn_plot_ica_properties = QAction("Plot ICA Properties", self)
         btn_plot_ica_1D = QAction("Plot ICA 1D", self)
@@ -62,9 +42,8 @@ class MyMenu(QToolBar):
         btn_highpass_filter = QAction("Highpass Filter", self)
         btn_bandpass_filter = QAction("Bandpass Filter", self)
         # btn_reset_raw = QPushButton("Reset Raw", self)
-        # Add actions or connections to filter buttons if needed
-        # btn_topomap_PSD.clicked.connect(self.topomap_PSD)
-        # btn_plot_electrode.clicked.connect(self.plot_electrode)
+
+        # set triggers connections, on btns cklick
         btn_preprocessing_ICA.triggered.connect(self.preprocessing_ICA)
         btn_plot_ica_properties.triggered.connect(self.plot_ica_components_properties)
         btn_plot_ica_1D.triggered.connect(self.plot_ica_components_1D)
@@ -78,6 +57,7 @@ class MyMenu(QToolBar):
         btn_bandpass_filter.triggered.connect(self.bandpass_filtering)
         # btn_reset_raw.clicked.connect(self.reset_raw)
 
+        # add btns to self toolbar
         self.addAction(btn_preprocessing_ICA)
         self.addAction(btn_plot_ica_properties)
         self.addAction(btn_plot_ica_1D)
@@ -90,12 +70,11 @@ class MyMenu(QToolBar):
         # layout.addWidget(btn_reset_raw)
         layout.addStretch(20)
 
-    # implements stuff
+    # implements stuff,  function sends integer to proper dick form to be displayed
     def preprocessing_ICA(self):
         self.parent().dock.apply_function_parameters(1)
         self.parent().dock.show()
 
-    # self.parent().my_raw.preprocessing_ICA()
     def plot_ica_components_properties(self):
         self.parent().dock.apply_function_parameters(2)
         self.parent().dock.show()
@@ -128,6 +107,7 @@ class MyMenu(QToolBar):
         pass
 
 
+# toolbar
 class MyToolbar(QToolBar):
     def __init__(self, parent):
         super().__init__(parent)
@@ -162,9 +142,9 @@ class MyToolbar(QToolBar):
             color="#bebb48",
             color_active="#cbcbcb",
         )
+
         # Create the actions
         self.tool_action = QAction(tool_icon, "Menu ", self)
-        # self.tool_action.setStatusTip("This is your button")
         self.tool_action.triggered.connect(self.onMyToolBarButtonClick)
         self.tool_action.setCheckable(True)
         self.upload_action = QAction(upload_icon, "Upload", self)
@@ -174,6 +154,8 @@ class MyToolbar(QToolBar):
         self.split_screen_action.triggered.connect(self.onMySplitScreen)
         self.show_toolbar = QAction(toolbar_icon, "Toolbar", self)
         self.show_toolbar.triggered.connect(self.showMyToolbar)
+
+        # add btns to main toolbar layout
         self.addAction(self.tool_action)
         self.addSeparator()
         self.addAction(self.upload_action)
@@ -186,27 +168,20 @@ class MyToolbar(QToolBar):
         self.setFloatable(True)
         self.setMovable(True)
         self.setIconSize(QSize(50, 25))
-        self.setStyleSheet("background-color: transparent")
 
+    # show hide menu options
     def onMyToolBarButtonClick(self):
         if self.tool_action.isChecked():
             self.parent().mymenu.show()
         else:
             self.parent().mymenu.hide()
 
-    # def onMyToolBarButtonClick(self):
-    #     if self.tool_action.isChecked():
-    #         # Show
-    #         self.parent().left_menu.show()
-    #     else:
-    #         # Hide
-    #         self.parent().left_menu.hide()
-
+    # upload data to screen
     def uploadMyData(self):
-        # self.inner_layout = self.parent().layout()
         self.parent().upload_data(self.parent().inner_layout, hide_btns=False)
 
     def onMySplitScreen(self):
+        self.close()
         self.parent().split_screen()
 
     def showMyToolbar(self):
@@ -216,31 +191,31 @@ class MyToolbar(QToolBar):
             self.parent().dock.show()
 
 
+# Create the dock class
 class MyDockMenu(QDockWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.setWindowTitle("Options")
-        # Create the dock
-        self.setFixedWidth(350)
 
+        self.setFixedWidth(350)
         central_widget = QWidget()
         self.setWidget(central_widget)
         self.form_layout = QFormLayout()
         self.form_layout.setVerticalSpacing(40)
         central_widget.setLayout(self.form_layout)
-        central_widget.setStyleSheet(
-            """
-    QPushButton {
-        background: #125904;
-        width: 100%;
-    }   
-    QPushButton:hover {
-        background-color: #1c8906;
-    }   
-    """
-        )
 
     def apply_function_parameters(self, x):
+        # style * all apply function btns
+        self.btn_qss = """
+            QPushButton {
+                 background: #125904;
+                 color: white;
+            }
+            QPushButton:hover {
+                 background-color: #1c8906;
+            }
+         """
+        # dynamically changes forms inputs , deletes prev form
         for i in reversed(range(self.form_layout.count())):
             widget = self.form_layout.itemAt(i).widget()
             if widget is not None:
@@ -262,15 +237,7 @@ class MyDockMenu(QDockWidget):
 
             apply_button = QPushButton("Apply")
             apply_button.clicked.connect(self.ok_clicked)
-
-            self.setStyleSheet(
-                """
-            QSpinBox {
-                 background-color:black;
-                 color:white;
-             }"""
-            )
-
+            apply_button.setStyleSheet(self.btn_qss)
             self.form_layout.addWidget(apply_button)
         elif x == 2:
             data_label = QLabel("Plot ICA Properties: ")
@@ -283,6 +250,7 @@ class MyDockMenu(QDockWidget):
 
             plot_button = QPushButton("Plot Properties")
             plot_button.clicked.connect(self.plot_ica_properties_cklicked)
+            plot_button.setStyleSheet(self.btn_qss)
             self.form_layout.addWidget(plot_button)
         elif x == 3:
             data_label = QLabel("Plot ICA 1D: ")
@@ -293,6 +261,7 @@ class MyDockMenu(QDockWidget):
 
             apply_button = QPushButton("Apply", self)
             apply_button.clicked.connect(self.plot_ica_1d)
+            apply_button.setStyleSheet(self.btn_qss)
             self.form_layout.addWidget(apply_button)
         elif x == 4:
             data_label = QLabel("Plot ICA Topomap: ")
@@ -305,6 +274,7 @@ class MyDockMenu(QDockWidget):
 
             plot_button = QPushButton("Plot Topomap")
             plot_button.clicked.connect(self.plot_ica_topomap_cklicked)
+            plot_button.setStyleSheet(self.btn_qss)
             self.form_layout.addWidget(plot_button)
         elif x == 5:
             self.channels = []
@@ -317,11 +287,13 @@ class MyDockMenu(QDockWidget):
             self.add_button = QPushButton("", self)
             self.add_button.setIcon(add_icon)
             self.add_button.clicked.connect(self.add_channel)
+            self.add_button.setObjectName("add_button")
             self.add_button.setStyleSheet(
-                """QPushButton {
+                """#add_button {
                     background-color: transparent;}
-                QPushButton:hover {
-                    background-color: #669ff51c;
+                #add_button:hover {
+                    
+                    border-color: orange;
                 }
               """
             )
@@ -332,12 +304,13 @@ class MyDockMenu(QDockWidget):
             self.remove_button = QPushButton("", self)
             self.remove_button.setIcon(remove_icon)
             self.remove_button.clicked.connect(self.remove_channel)
+            self.remove_button.setObjectName("remove_button")
             self.remove_button.setStyleSheet(
                 """
-                QPushButton {
+                #remove_button {
                     background-color: transparent;}
-                QPushButton:hover {
-                    background-color:#5796f43a;
+                #remove_button:hover {
+                    border-color:red;
                 }
                    """
             )
@@ -353,6 +326,7 @@ class MyDockMenu(QDockWidget):
             # execute function psd channels
             self.calculate_button = QPushButton("Calculate channel PSD", self)
             self.calculate_button.clicked.connect(self.calculate_psd_channels)
+            self.calculate_button.setStyleSheet(self.btn_qss)
             self.form_layout.addRow(self.calculate_button)
         elif x == 6:
             data_label = QLabel("Lowpass Filter: ")
@@ -363,6 +337,7 @@ class MyDockMenu(QDockWidget):
             self.fir_design_combobox = QComboBox()
             self.fir_design_combobox.addItems(["firwin", "other_designs"])
             self.apply_button = QPushButton("Apply Lowpass")
+            self.apply_button.setStyleSheet(self.btn_qss)
             self.apply_button.clicked.connect(self.apply_lowpass)
             self.form_layout.addRow("High Frequency (Hz):", self.high_frq_spinbox)
             self.form_layout.addRow("Filter Design:", self.fir_design_combobox)
@@ -376,8 +351,9 @@ class MyDockMenu(QDockWidget):
             self.fir_design_combobox = QComboBox()
             self.fir_design_combobox.addItems(["firwin", "other_designs"])
             self.apply_button = QPushButton("Apply Highpass")
+            self.apply_button.setStyleSheet(self.btn_qss)
             self.apply_button.clicked.connect(self.apply_highpass)
-            self.form_layout.addRow("Low Frequency (Hz):", self.low_frq_spinbox)
+            self.form_layout.addRow("Low Frequency (Hz): ", self.low_frq_spinbox)
             self.form_layout.addRow("Filter Design:", self.fir_design_combobox)
             self.form_layout.addRow("", self.apply_button)
         elif x == 8:
@@ -397,6 +373,7 @@ class MyDockMenu(QDockWidget):
             self.skip_by_annotation_combobox.addItems(["edge", "other_options"])
 
             self.apply_button = QPushButton("Apply bandpass")
+            self.apply_button.setStyleSheet(self.btn_qss)
             self.apply_button.clicked.connect(self.apply_bandpass)
             self.form_layout.addRow("Low Frequency (Hz):", self.low_frq_spinbox)
             self.form_layout.addRow("High Frequency (Hz):", self.high_frq_spinbox)
@@ -406,26 +383,30 @@ class MyDockMenu(QDockWidget):
             )
             self.form_layout.addRow("", self.apply_button)
 
+    # helper add function for PSD channels
     def add_channel(self):
-        # Add the selected channel to the list
+        # add the selected channel to the list
         selected_channel = self.channel_combobox.currentText()
         if selected_channel and selected_channel not in self.channels:
             self.channels.append(selected_channel)
         self.update_selected_channels_label()
 
+    # helper remove function for PSD channels
     def remove_channel(self):
-        # Remove the selected channel from the list
+        # remove the selected channel from the list
 
         if self.channels:
             self.channels.pop()
         self.update_selected_channels_label()
 
+    # helper update show label of selected channels for function for PSD channels
     def update_selected_channels_label(self):
         # Update the label
         self.selected_channels_label.setText(
             "Selected Channels: " + ", ".join(self.channels)
         )
 
+    # execute functios:
     def ok_clicked(self):
         n_components = self.n_components_spinbox.value()
         random_state = self.random_state_spinbox.value()
@@ -435,7 +416,7 @@ class MyDockMenu(QDockWidget):
 
     def plot_ica_properties_cklicked(self):
         picks_text = self.picks_line_edit.text()
-        if picks_text == '':
+        if picks_text == "":
             picks = None
         else:
             picks = [int(pick.strip()) for pick in picks_text.split(",")]
@@ -444,7 +425,7 @@ class MyDockMenu(QDockWidget):
 
     def plot_ica_1d(self):
         picks_text = self.picks_input.text()
-        if picks_text == '':
+        if picks_text == "":
             picks = None
         else:
             picks = [int(pick.strip()) for pick in picks_text.split(",")]
@@ -453,7 +434,7 @@ class MyDockMenu(QDockWidget):
 
     def plot_ica_topomap_cklicked(self):
         picks_text = self.picks_line_edit.text()
-        if picks_text == '':
+        if picks_text == "":
             picks = None
         else:
             picks = [int(pick.strip()) for pick in picks_text.split(",")]
