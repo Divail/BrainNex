@@ -1,10 +1,8 @@
 QPushButton {
-    background:#bebb48;
-    width: 100%;
-    margin-top: 2px;
-    border: 1px solid #313131;
-    padding: 2px;
-    border-radius: 50%;
+    background: #4299e1;
+    color: #EEEEEE;
+    background: #ecc94b;
+    color:#dadada;
 }
 
 QPushButton:hover {
@@ -14,6 +12,8 @@ QPushButton:hover {
         background: #1e2947;
         width: 100%;
         margin-top: 2px;
+        background: #4299e1;
+        color: #636161;
         border: 1px solid #3d4f7c;
         padding: 2px;
         border-radius: 75%;

@@ -323,8 +323,9 @@ if __name__ == "__main__":
     icon = QIcon("brain-icon.png")
     app.setWindowIcon(icon)
     app.setQuitOnLastWindowClosed(False)
-    qdarktheme.setup_theme("dark")
-    app.setPalette(qdarktheme.load_palette("dark"))
+
+    qdarktheme.setup_theme("auto")
+    app.setPalette(qdarktheme.load_palette("auto"))
     # main application window entry
     window = BrainNex()
     # Create the tray for visibility in OS  toolbar
