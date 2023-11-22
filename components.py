@@ -54,22 +54,18 @@ class MyMenu(QToolBar):
             lambda: self.parent().my_eeg.power_spectral_density()
         )
         btn_psd_channels.triggered.connect(self.power_spectral_density_channels)
-        btn_psd_topomap.triggered.connect(
-            lambda: self.parent().my_eeg.topomap_PSD()
-        )
+        btn_psd_topomap.triggered.connect(lambda: self.parent().my_eeg.topomap_PSD())
         btn_common_spatial_pattern.triggered.connect(self.common_spatial_pattern)
-        #btn_common_spatial_pattern.triggered.connect(
-            #lambda: self.parent().my_eeg.common_spatial_pattern()
-        #)
+        # btn_common_spatial_pattern.triggered.connect(
+        # lambda: self.parent().my_eeg.common_spatial_pattern()
+        # )
         btn_plot_electrodes.triggered.connect(
             lambda: self.parent().my_eeg.plot_electrodes()
         )
         btn_lowpass_filter.triggered.connect(self.lowpass_filtering)
         btn_highpass_filter.triggered.connect(self.highpass_filtering)
         btn_bandpass_filter.triggered.connect(self.bandpass_filtering)
-        btn_reset_raw.triggered.connect(
-            lambda: self.parent().my_eeg.reset_raw()
-        )
+        btn_reset_raw.triggered.connect(lambda: self.parent().my_eeg.reset_raw())
 
         # add btns to self toolbar
         self.addAction(btn_preprocessing_ICA)
@@ -120,7 +116,7 @@ class MyMenu(QToolBar):
     def bandpass_filtering(self):
         self.parent().dock.apply_function_parameters(8)
         self.parent().dock.show()
-        
+
     def common_spatial_pattern(self):
         self.parent().dock.apply_function_parameters(9)
         self.parent().dock.show()
@@ -403,25 +399,26 @@ class MyDockMenu(QDockWidget):
             self.form_layout.addRow("", self.apply_button)
         if x == 9:
             data_label = QLabel("CSP:")
-            self.form_layout.addRow(data_label) 
-            
+            self.form_layout.addRow(data_label)
+
             self.n_components_spinbox = QSpinBox()
             self.n_components_spinbox.setValue(4)
             self.form_layout.addRow("n_components:", self.n_components_spinbox)
 
             self.tmin_spinbox = QSpinBox()
-            #self.tmin_spinbox.setValue(-99)
+            # self.tmin_spinbox.setValue(-99)
             self.form_layout.addRow("tmin:", self.tmin_spinbox)
 
             self.tmax_spinbox = QSpinBox()
-            #self.tmax_spinbox.setValue(-99)
+            # self.tmax_spinbox.setValue(-99)
             self.form_layout.addRow("tmax:", self.tmax_spinbox)
-            
+
             self.event_id_edit = QLineEdit()
             self.event_id_edit.setPlaceholderText("Enter event id (dictionary)")
             self.form_layout.addRow("Event_id:", self.event_id_edit)
 
             plot_button = QPushButton("Plot CSP")
+            plot_button.setStyleSheet(self.btn_qss)
             plot_button.clicked.connect(self.plot_common_spatial_pattern_clicked)
             self.form_layout.addWidget(plot_button)
 
@@ -458,7 +455,7 @@ class MyDockMenu(QDockWidget):
 
     def plot_ica_properties_clicked(self):
         picks_text = self.picks_line_edit.text()
-        if picks_text == '':
+        if picks_text == "":
             picks = []
             for i in range(0, self.parent().my_eeg.ica.n_components):
                 picks.append(i)
@@ -513,12 +510,12 @@ class MyDockMenu(QDockWidget):
             low_frq, high_frq, fir_design, skip_by_annotation
         )
         self.hide()
-        
+
     def plot_common_spatial_pattern_clicked(self):
         n_components = self.n_components_spinbox.value()
         tmin = self.tmin_spinbox.value()
         tmax = self.tmax_spinbox.value()
-        #event_id = self.event_id_edit.text()
+        # event_id = self.event_id_edit.text()
         if tmin == 0 and tmax != 0:
             self.parent().my_eeg.common_spatial_pattern(n_components, tmax)
         elif tmax == 0 and tmin != 0:
