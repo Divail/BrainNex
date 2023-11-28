@@ -1,13 +1,24 @@
 QPushButton {
-    background: #111010;
-    width: 100%;
-    margin-top: 2px;
-    border: 1px solid #7e5302;
-    padding: 2px;
-    border-radius: 50%;
+    background: #4299e1;
+    color: #EEEEEE;
+    background: #ecc94b;
+    color:#dadada;
 }
 
 QPushButton:hover {
-    background-color: #868789;}
+    background-color: #125904;}
    
-   
+    #upload_button {
+        background: #1e2947;
+        width: 100%;
+        margin-top: 2px;
+        background: #4299e1;
+        color: #636161;
+        border: 1px solid #3d4f7c;
+        padding: 2px;
+        border-radius: 75%;
+    }
+    
+    #upload_button:hover {
+        background-color: #868789;
+    }
