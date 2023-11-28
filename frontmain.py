@@ -1,3 +1,12 @@
+"""
+All Rights Reserved
+
+This program is the property of BrainNex.
+All rights to this code are reserved, and no part of it should be used,
+modified, or distributed for commercial use without explicit written permission.
+
+For inquiries, please contact DmytroLevytskyi7@gmail.com.
+"""
 import sys
 import mne
 import numpy as np
